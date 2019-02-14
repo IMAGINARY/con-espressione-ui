@@ -57,6 +57,34 @@
 
     window.camera = null;
 
+    const createBar = function (position, height, color, name) {
+        var geometry = new THREE.BoxGeometry(10, height, 10);
+
+        var material = new THREE.MeshPhongMaterial({
+            color: color
+        });
+
+        const bar = new THREE.Mesh(geometry, material);
+
+        bar.position.copy(position);
+        bar.name = name;
+//        bar.castShadow = true;
+//        bar.receiveShadow = true;
+
+
+        return bar;
+    };
+
+    window.bars = {
+        volume: createBar(new THREE.Vector3(-60, 50, 0), 100, 'red', 'volume'),
+        tempo: createBar(new THREE.Vector3(-40, 50, 0), 100, 'green', 'tempo'),
+        aiLoudness: createBar(new THREE.Vector3(40, 50, 0), 100, 'blue', 'aiLoudness'),
+        aiDynamicSpread: createBar(new THREE.Vector3(60, 50, 0), 100, 'yellow', 'aiDynamicSpread'),
+        aiTempo: createBar(new THREE.Vector3(80, 50, 0), 100, 'cyan', 'aiTempo'),
+        aiMicroTiming: createBar(new THREE.Vector3(100, 50, 0), 100, 'magenta', 'aiMicroTiming'),
+        aiArticulation: createBar(new THREE.Vector3(120, 50, 0), 100, 'orange', 'aiArticulation'),
+    };
+
     initScene = function (element) {
         let axis, pointLight;
         window.scene = new THREE.Scene();
@@ -70,8 +98,8 @@
         scene.add(axis);
         scene.add(new THREE.AmbientLight(0x888888));
         pointLight = new THREE.PointLight(0xFFffff);
-        pointLight.position = new THREE.Vector3(-20, 10, 0);
-        pointLight.lookAt(new THREE.Vector3(0, 0, 0));
+        pointLight.position.copy(new THREE.Vector3(0, 100, 1000));
+        pointLight.lookAt(new THREE.Vector3(0, 200, 0));
         scene.add(pointLight);
         window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
         camera.position.fromArray([0, 200, 500]);
@@ -79,6 +107,9 @@
         window.controls = new THREE.OrbitControls(camera);
         window.controls.target = new THREE.Vector3(0, 200, 0);
         scene.add(camera);
+
+        Object.values(bars).forEach(bar => scene.add(bar));
+
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
