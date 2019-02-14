@@ -74,9 +74,10 @@
         pointLight.lookAt(new THREE.Vector3(0, 0, 0));
         scene.add(pointLight);
         window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.fromArray([0, 0, 400]);
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
-        window.controls = new THREE.TrackballControls(camera);
+        camera.position.fromArray([0, 200, 500]);
+        camera.lookAt(new THREE.Vector3(0, 350, 0));
+        window.controls = new THREE.OrbitControls(camera);
+        window.controls.target = new THREE.Vector3(0, 200, 0);
         scene.add(camera);
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
