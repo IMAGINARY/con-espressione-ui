@@ -1,0 +1,47 @@
+#parameterBarContainer {
+    position: absolute;
+    width: 100vw;
+    bottom: 0px;
+    left: 0px;
+}
+
+.parameterBar {
+    width: 0%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: sans-serif;
+    background-color: #777777;
+}
+
+#volume.parameterBar {
+    background-color: #e6194b;
+}
+
+#tempo.parameterBar {
+    background-color: #3cb44b;
+}
+
+#ml.parameterBar {
+    background-color: #f032e6;
+}
+
+#mlLoudness.parameterBar {
+    background-color: #ffe119;
+}
+
+#mlDynamicSpread.parameterBar {
+    background-color: #4363d8;
+}
+
+#mlTempo.parameterBar {
+    background-color: #f58231;
+}
+
+#mlMicroTiming.parameterBar {
+    background-color: #911eb4;
+}
+
+#mlArticulation.parameterBar {
+    background-color: #46f0f0;
+}
