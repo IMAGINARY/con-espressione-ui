@@ -70,6 +70,7 @@
     let controller, stats;
 
     window.scene = null;
+    window.hands = null;
     window.renderer = null;
     window.camera = null;
 
@@ -96,6 +97,8 @@
         window.controls = new THREE.OrbitControls(camera);
         window.controls.target = new THREE.Vector3(0, 350, 0);
         scene.add(camera);
+        hands = new THREE.Group();
+        scene.add(hands);
 
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -215,10 +218,8 @@
 
     controller.on('frame', updatePosition);
 
-    controller.use('handHold').use('transform', {
-        position: new THREE.Vector3(1, 0, 0)
-    }).use('handEntry').use('screenPosition').use('riggedHand', {
-        parent: scene,
+    window.riggedHandScope = {
+        parent: hands,
         renderer: renderer,
         scale: 1.0,
         positionScale: 1.0,
@@ -230,7 +231,11 @@
             return controls.update();
         },
         materialOptions: {
-            wireframe: true
+            wireframe: false,
+            transparent: false,
+            opacity: 1.0,
+            transparent: false,
+            color: new THREE.Color('white'),
         },
         dotsMode: false,
         stats: stats,
@@ -253,7 +258,15 @@
             }
         },
         checkWebGL: true
-    }).connect();
+    };
+
+    controller
+        .use('handHold')
+        .use('transform', {})
+        .use('handEntry')
+        .use('screenPosition')
+        .use('riggedHand', riggedHandScope)
+        .connect();
 }).call(this);
 
 /*
