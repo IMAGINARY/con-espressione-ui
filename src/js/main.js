@@ -178,10 +178,8 @@
     }
 
     stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
-//    document.body.appendChild(stats.domElement);
+    stats.domElement.id = 'stats';
+    document.body.appendChild(stats.domElement);
 
     let prevHand = Leap.Hand.Invalid;
     let prevFinger = Leap.Finger.Invalid;
