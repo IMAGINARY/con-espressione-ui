@@ -162,6 +162,14 @@
         }
         const MIDI_OUT_CHANNEL = 1;
         const sendMidiParam = (control, value) => midiOutput.sendControlChange(control, value, MIDI_OUT_CHANNEL);
+
+        window.startPlaying = () => sendMidiParam(24, 127, 0);
+        window.stopPlaying = () => sendMidiParam(25, 127, 0);
+
+        // stop playing and play from the beginning
+        stopPlaying();
+        startPlaying();
+
         Object.entries(midiOutParameterMap).forEach(e => parameters[e[0]].addValueListener(v => sendMidiParam(e[1], v * 127)));
 
         const midiInParameterMap = {
