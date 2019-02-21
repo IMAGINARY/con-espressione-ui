@@ -74,6 +74,12 @@
     window.renderer = null;
     window.camera = null;
 
+    let msLastPoint = -1;
+    const MS_BETWEEN_POINTS = 100;
+    const NUM_POINTS = 20;
+    const tracePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)];
+    const traceGeometry = new THREE.BufferGeometry().setFromPoints(tracePoints);
+
     function initScene(element) {
         let axis, pointLight;
         window.scene = new THREE.Scene();
@@ -99,6 +105,7 @@
         scene.add(camera);
         hands = new THREE.Group();
         scene.add(hands);
+        scene.add(new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000})));
 
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -109,6 +116,17 @@
         }, false);
         return renderer.render(scene, camera);
     };
+
+    function computeInBetweenTracePoints(tracePoints) {
+        const curve = new THREE.CatmullRomCurve3(tracePoints);
+        const inBetweenPoints = curve.getPoints(5000);
+        return inBetweenPoints;
+    }
+
+    function animate() {
+        traceGeometry.setFromPoints(computeInBetweenTracePoints(tracePoints));
+        traceGeometry.verticesNeedUpdate = true;
+    }
 
     function initOverlayScene(element) {
         const container = document.createElement('div');
@@ -205,6 +223,16 @@
                     const normalizedTipPosition = interactionBox.normalizePoint(tipPosition, true);
                     parameters.tempo.value = normalizedTipPosition[0];
                     parameters.volume.value = normalizedTipPosition[1];
+                    const msCurrentPoint = frame.timestamp / 1000;
+                    const currentPoint = new THREE.Vector3().fromArray(tipPosition);
+                    if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
+                        tracePoints.unshift(currentPoint);
+                        msLastPoint = msCurrentPoint;
+                    } else {
+                        tracePoints[0].lerp(currentPoint, 0.5);
+                    }
+                    while (tracePoints.length > NUM_POINTS)
+                        tracePoints.pop();
                 }
             }
             prevFinger = finger;
@@ -225,6 +253,7 @@
         offset: new THREE.Vector3(0, 0, 0),
         renderFn: function () {
             TWEEN.update();
+            animate();
             renderer.render(scene, camera);
             return controls.update();
         },
