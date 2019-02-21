@@ -16,6 +16,27 @@
         mlArticulation: createParameterModel('mlArticulation', 0.5, {animate: true}),
     };
 
+    const scene_options = {
+        particleOptions: {
+            position: new THREE.Vector3(),
+            positionRandomness: .3,
+            velocity: new THREE.Vector3(),
+            velocityRandomness: .5,
+            color: 0xaa88ff,
+            colorRandomness: .2,
+            turbulence: .5,
+            lifetime: 2,
+            size: 5,
+            sizeRandomness: 1
+        },
+        particleSpawnerOptions: {
+            spawnRate: 15000,
+            horizontalSpeed: 1.5,
+            verticalSpeed: 1.33,
+            timeScale: 1
+        }
+    }
+
     function createParameterModel(id, initialValue, userData) {
         return {
             id: id,
@@ -73,6 +94,8 @@
     window.hands = null;
     window.renderer = null;
     window.camera = null;
+    window.datgui = null;
+    window.particleScope = {system: null, clock: new THREE.Clock(), tick: 0};
 
     let msLastPoint = -1;
     const MS_BETWEEN_POINTS = 100;
@@ -107,6 +130,14 @@
         scene.add(hands);
         scene.add(new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000})));
 
+        const textureLoader = new THREE.TextureLoader();
+        particleScope.system = new THREE.GPUParticleSystem({
+            maxParticles: 250000,
+            particleNoiseTex: textureLoader.load('../../lib/textures/perlin-512.jpg'),
+            particleSpriteTex: textureLoader.load('../../lib/textures/particle2.png'),
+        });
+        scene.add(particleScope.system);
+
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -123,9 +154,33 @@
         return inBetweenPoints;
     }
 
+    function updateParticles(newPoint) {
+        const options = scene_options.particleOptions;
+        const spawnerOptions = scene_options.particleSpawnerOptions;
+        const delta = particleScope.clock.getDelta() * spawnerOptions.timeScale;
+
+        particleScope.tick += delta;
+
+        if (particleScope.tick < 0) particleScope.tick = 0;
+
+        const spawnParticles = spawnerOptions.spawnRate * delta;
+        if (spawnParticles > 0) {
+
+            const oldPoint = options.position;
+            options.position = new THREE.Vector3();
+            for (var x = 0; x < spawnParticles; x++) {
+                options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
+                particleScope.system.spawnParticle(options);
+            }
+        }
+
+        particleScope.system.update(particleScope.tick);
+    }
+
     function animate() {
         traceGeometry.setFromPoints(computeInBetweenTracePoints(tracePoints));
         traceGeometry.verticesNeedUpdate = true;
+        updateParticles(tracePoints[0]);
     }
 
     function initOverlayScene(element) {
@@ -190,9 +245,28 @@
         );
     };
 
+    function initDatGui() {
+        datgui = new dat.GUI({width: 350});
+
+        const particleFolder = datgui.addFolder('particles');
+        particleFolder.open();
+
+        particleFolder.add(scene_options.particleOptions, "velocityRandomness", 0, 3);
+        particleFolder.add(scene_options.particleOptions, "positionRandomness", 0, 3);
+        particleFolder.add(scene_options.particleOptions, "size", 1, 20);
+        particleFolder.add(scene_options.particleOptions, "sizeRandomness", 0, 25);
+        particleFolder.add(scene_options.particleOptions, "colorRandomness", 0, 1);
+        particleFolder.add(scene_options.particleOptions, "lifetime", .1, 10);
+        particleFolder.add(scene_options.particleOptions, "turbulence", 0, 1);
+
+        particleFolder.add(scene_options.particleSpawnerOptions, "spawnRate", 10, 30000);
+        particleFolder.add(scene_options.particleSpawnerOptions, "timeScale", -1, 1);
+    }
+
     if (webglAvailable) {
         initScene(document.body);
         initOverlayScene(document.body);
+        initDatGui();
         WebMidi.enable(function (err) {
             if (err) {
                 console.log("WebMidi could not be enabled.", err);
