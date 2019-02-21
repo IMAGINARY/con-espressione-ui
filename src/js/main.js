@@ -83,9 +83,9 @@
         renderer.setClearColor(0x000000, 1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         element.appendChild(renderer.domElement);
-        axis = new THREE.AxisHelper(40);
+        axis = new THREE.AxesHelper(40);
         scene.add(axis);
-        scene.add(new THREE.AmbientLight(0x888888));
+        scene.add(new THREE.AmbientLight(0x000000));
         pointLight = new THREE.PointLight(0xFFffff);
         pointLight.position.copy(new THREE.Vector3(0, 100, 1000));
         pointLight.lookAt(new THREE.Vector3(0, 200, 0));
