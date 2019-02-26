@@ -72,7 +72,11 @@
             particles: true,
             box: true,
             label: false,
-        }
+        },
+        controls: {
+            mlMIDI: true,
+            mlLeapMotion: false,
+        },
     }
 
     function createParameterModel(id, initialValue, userData) {
@@ -288,7 +292,10 @@
         console.log(WebMidi.outputs);
 
         const midiSlider = WebMidi.getInputByName("SOLO Control");
-        midiSlider.addListener('controlchange', "all", e => parameters.ml.value = e.value / 127.0);
+        midiSlider.addListener('controlchange', "all", e => {
+            if (app_state.controls.mlMIDI)
+                parameters.ml.value = e.value / 127.0;
+        });
 
         const midiInput = WebMidi.getInputByName("LeapControl");
         const midiOutput = WebMidi.getOutputByName("LeapControl");
@@ -358,6 +365,11 @@
         objectsFolder.add(app_state.objects, "particles");
         objectsFolder.add(app_state.objects, "box");
         objectsFolder.add(app_state.objects, "label");
+
+        const controlsFolder = datgui.addFolder('controls');
+
+        controlsFolder.add(app_state.controls, "mlMIDI");
+        controlsFolder.add(app_state.controls, "mlLeapMotion");
     }
 
     if (webglAvailable) {
@@ -400,13 +412,15 @@
                     }
                 }
                 if (app_state.leapMotion.finger.valid) {
-                    const tipPosition = new THREE.Vector3().fromArray(app_state.leapMotion.finger.stabilizedTipPosition);
+                    const tipPosition = new THREE.Vector3().fromArray(app_state.leapMotion.finger.tipPosition);
                     tipPosition.addScaledVector(new THREE.Vector3().fromArray(app_state.leapMotion.finger.direction), app_state.leapMotion.finger.length / 5.0);
                     if (app_state.leapMotion.clamp)
                         tipPosition.copy(app_state.leapMotion.clampPosition(tipPosition));
                     const normalizedTipPosition = app_state.leapMotion.normalizePosition(tipPosition);
                     parameters.tempo.value = normalizedTipPosition.x;
                     parameters.volume.value = normalizedTipPosition.y;
+                    if (app_state.controls.mlLeapMotion)
+                        parameters.ml.value = 1.0 - normalizedTipPosition.z;
                     const msCurrentPoint = frame.timestamp / 1000;
                     const currentPoint = tipPosition.clone();
                     if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
