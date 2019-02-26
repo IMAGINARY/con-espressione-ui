@@ -76,6 +76,7 @@
         controls: {
             mlMIDI: true,
             mlLeapMotion: false,
+            camera: false,
         },
     }
 
@@ -258,6 +259,8 @@
     }
 
     function animate() {
+        controls.enabled = app_state.controls.camera;
+
         interactionBox.position.addVectors(app_state.leapMotion.min, app_state.leapMotion.max).multiplyScalar(0.5);
         interactionBox.scale.subVectors(app_state.leapMotion.max, app_state.leapMotion.min);
         interactionBox.visible = app_state.objects.box;
@@ -370,6 +373,7 @@
 
         controlsFolder.add(app_state.controls, "mlMIDI");
         controlsFolder.add(app_state.controls, "mlLeapMotion");
+        controlsFolder.add(app_state.controls, "camera");
     }
 
     if (webglAvailable) {
