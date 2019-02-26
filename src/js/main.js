@@ -324,7 +324,6 @@
         datgui = new dat.GUI({width: 350});
 
         const particleFolder = datgui.addFolder('particles');
-        particleFolder.open();
 
         particleFolder.add(app_state.particleOptions, "velocityRandomness", 0, 3);
         particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3);
