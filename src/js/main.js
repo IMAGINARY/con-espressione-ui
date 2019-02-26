@@ -16,7 +16,7 @@
         mlArticulation: createParameterModel('mlArticulation', 0.5, {animate: true}),
     };
 
-    const scene_options = {
+    const app_state = {
         particleOptions: {
             position: new THREE.Vector3(),
             positionRandomness: .3,
@@ -33,7 +33,23 @@
             spawnRate: 15000,
             horizontalSpeed: 1.5,
             verticalSpeed: 1.33,
-            timeScale: 1
+            timeScale: 1,
+        },
+        leapMotion: {
+            hand: Leap.Hand.Invalid,
+            finger: Leap.Finger.Invalid,
+            previousHand: Leap.Hand.Invalid,
+            previousFinger: Leap.Finger.Invalid,
+            min: new THREE.Vector3(-150, 100, -80),
+            max: new THREE.Vector3(150, 400, 80),
+            normalizePosition: function (point, clamp = true) {
+                const result = point.clone();
+                if (clamp)
+                    result.clamp(this.min, this.max);
+                return result
+                    .sub(this.min)
+                    .divide(new THREE.Vector3().subVectors(this.max, this.min));
+            }
         }
     }
 
@@ -92,6 +108,7 @@
 
     window.scene = null;
     window.hands = null;
+    window.interactionBox = null;
     window.renderer = null;
     window.camera = null;
     window.datgui = null;
@@ -102,6 +119,28 @@
     const NUM_POINTS = 20;
     const tracePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)];
     const traceGeometry = new THREE.BufferGeometry().setFromPoints(tracePoints);
+
+    function createBoxLineSegmentsGeometry() {
+        const lineSegments = new THREE.Geometry();
+        lineSegments.vertices.push(
+            new THREE.Vector3(-1, -1, -1), new THREE.Vector3(+1, -1, -1),
+            new THREE.Vector3(+1, -1, -1), new THREE.Vector3(+1, +1, -1),
+            new THREE.Vector3(+1, +1, -1), new THREE.Vector3(-1, +1, -1),
+            new THREE.Vector3(-1, +1, -1), new THREE.Vector3(-1, -1, -1),
+
+            new THREE.Vector3(-1, -1, +1), new THREE.Vector3(+1, -1, +1),
+            new THREE.Vector3(+1, -1, +1), new THREE.Vector3(+1, +1, +1),
+            new THREE.Vector3(+1, +1, +1), new THREE.Vector3(-1, +1, +1),
+            new THREE.Vector3(-1, +1, +1), new THREE.Vector3(-1, -1, +1),
+
+            new THREE.Vector3(-1, -1, -1), new THREE.Vector3(-1, -1, +1),
+            new THREE.Vector3(+1, -1, -1), new THREE.Vector3(+1, -1, +1),
+            new THREE.Vector3(+1, +1, -1), new THREE.Vector3(+1, +1, +1),
+            new THREE.Vector3(-1, +1, -1), new THREE.Vector3(-1, +1, +1),
+        );
+        lineSegments.scale(0.5, 0.5, 0.5);
+        return lineSegments;
+    }
 
     function initScene(element) {
         let axis, pointLight;
@@ -119,16 +158,23 @@
         pointLight.position.copy(new THREE.Vector3(0, 100, 1000));
         pointLight.lookAt(new THREE.Vector3(0, 200, 0));
         scene.add(pointLight);
-        window.camera = new THREE.OrthographicCamera(window.innerWidth / -3, window.innerWidth / 3, window.innerHeight / 3, window.innerHeight / -3, 1, 1000);
+        window.camera = new THREE.OrthographicCamera(window.innerWidth / -5, window.innerWidth / 5, window.innerHeight / 5, window.innerHeight / -5, 1, 1000);
 //        window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.fromArray([0, 200, 500]);
+        camera.position.fromArray([0, 350, 500]);
         camera.lookAt(new THREE.Vector3(0, 350, 0));
         window.controls = new THREE.OrbitControls(camera);
         window.controls.target = new THREE.Vector3(0, 350, 0);
         scene.add(camera);
         hands = new THREE.Group();
+        hands.position.set(0.0, 130.0, 0.0);
         scene.add(hands);
-        scene.add(new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000})));
+
+        const traceCurve = new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000}));
+        traceCurve.frustumCulled = false;
+        hands.add(traceCurve);
+
+        interactionBox = new THREE.LineSegments(createBoxLineSegmentsGeometry(), new THREE.LineBasicMaterial({color: 0x999999}));
+        hands.add(interactionBox);
 
         const textureLoader = new THREE.TextureLoader();
         particleScope.system = new THREE.GPUParticleSystem({
@@ -136,7 +182,7 @@
             particleNoiseTex: textureLoader.load('../../lib/textures/perlin-512.jpg'),
             particleSpriteTex: textureLoader.load('../../lib/textures/particle2.png'),
         });
-        scene.add(particleScope.system);
+        hands.add(particleScope.system);
 
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -155,22 +201,28 @@
     }
 
     function updateParticles(newPoint) {
-        const options = scene_options.particleOptions;
-        const spawnerOptions = scene_options.particleSpawnerOptions;
+        const options = app_state.particleOptions;
+        const spawnerOptions = app_state.particleSpawnerOptions;
         const delta = particleScope.clock.getDelta() * spawnerOptions.timeScale;
 
         particleScope.tick += delta;
 
         if (particleScope.tick < 0) particleScope.tick = 0;
 
-        const spawnParticles = spawnerOptions.spawnRate * delta;
-        if (spawnParticles > 0) {
-
+        if (app_state.leapMotion.finger.valid) {
+            const spawnParticles = spawnerOptions.spawnRate * delta;
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
-            for (var x = 0; x < spawnParticles; x++) {
-                options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
-                particleScope.system.spawnParticle(options);
+            if (app_state.leapMotion.previousFinger.valid) {
+                for (var x = 0; x < spawnParticles; x++) {
+                    options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
+                    particleScope.system.spawnParticle(options);
+                }
+            } else {
+                options.position.copy(newPoint);
+                for (var x = 0; x < spawnParticles; x++) {
+                    particleScope.system.spawnParticle(options);
+                }
             }
         }
 
@@ -178,6 +230,9 @@
     }
 
     function animate() {
+        interactionBox.position.addVectors(app_state.leapMotion.min, app_state.leapMotion.max).multiplyScalar(0.5);
+        interactionBox.scale.subVectors(app_state.leapMotion.max, app_state.leapMotion.min);
+
         traceGeometry.setFromPoints(computeInBetweenTracePoints(tracePoints));
         traceGeometry.verticesNeedUpdate = true;
         updateParticles(tracePoints[0]);
@@ -251,16 +306,16 @@
         const particleFolder = datgui.addFolder('particles');
         particleFolder.open();
 
-        particleFolder.add(scene_options.particleOptions, "velocityRandomness", 0, 3);
-        particleFolder.add(scene_options.particleOptions, "positionRandomness", 0, 3);
-        particleFolder.add(scene_options.particleOptions, "size", 1, 20);
-        particleFolder.add(scene_options.particleOptions, "sizeRandomness", 0, 25);
-        particleFolder.add(scene_options.particleOptions, "colorRandomness", 0, 1);
-        particleFolder.add(scene_options.particleOptions, "lifetime", .1, 10);
-        particleFolder.add(scene_options.particleOptions, "turbulence", 0, 1);
+        particleFolder.add(app_state.particleOptions, "velocityRandomness", 0, 3);
+        particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3);
+        particleFolder.add(app_state.particleOptions, "size", 1, 20);
+        particleFolder.add(app_state.particleOptions, "sizeRandomness", 0, 25);
+        particleFolder.add(app_state.particleOptions, "colorRandomness", 0, 1);
+        particleFolder.add(app_state.particleOptions, "lifetime", .1, 10);
+        particleFolder.add(app_state.particleOptions, "turbulence", 0, 1);
 
-        particleFolder.add(scene_options.particleSpawnerOptions, "spawnRate", 10, 30000);
-        particleFolder.add(scene_options.particleSpawnerOptions, "timeScale", -1, 1);
+        particleFolder.add(app_state.particleSpawnerOptions, "spawnRate", 10, 30000);
+        particleFolder.add(app_state.particleSpawnerOptions, "timeScale", -1, 1);
     }
 
     if (webglAvailable) {
@@ -285,28 +340,31 @@
     let prevFinger = Leap.Finger.Invalid;
 
     function updatePosition(frame) {
-        let hand = frame.hand(prevHand.id);
-        for (let i = 0; i < frame.hands.length && !hand.valid; ++i) {
-            hand = frame.hands[i];
+        app_state.leapMotion.previousHand = app_state.leapMotion.hand;
+        app_state.leapMotion.previousFinger = app_state.leapMotion.finger;
+
+        app_state.leapMotion.hand = frame.hand(prevHand.id);
+        app_state.leapMotion.finger = Leap.Finger.Invalid;
+        for (let i = 0; i < frame.hands.length && !app_state.leapMotion.hand.valid; ++i) {
+            app_state.leapMotion.hand = frame.hands[i];
         }
-        if (hand.valid) {
-            let finger = Leap.Finger.Invalid;
-            if (hand.fingers.length > 0) {
+        if (app_state.leapMotion.hand.valid) {
+            if (app_state.leapMotion.hand.fingers.length > 0) {
                 const preference = ['indexFinger', 'middleFinger', 'thumb', 'ringFinger', 'pinky'];
                 for (let fingerName of preference) {
-                    if (hand[fingerName].valid) {
-                        finger = hand[fingerName];
+                    if (app_state.leapMotion.hand[fingerName].valid) {
+                        app_state.leapMotion.finger = app_state.leapMotion.hand[fingerName];
                         break;
                     }
                 }
-                if (finger.valid) {
-                    const tipPosition = finger.tipPosition;
-                    const interactionBox = frame.interactionBox;
-                    const normalizedTipPosition = interactionBox.normalizePoint(tipPosition, true);
-                    parameters.tempo.value = normalizedTipPosition[0];
-                    parameters.volume.value = normalizedTipPosition[1];
+                if (app_state.leapMotion.finger.valid) {
+                    const tipPosition = new THREE.Vector3().fromArray(app_state.leapMotion.finger.stabilizedTipPosition);
+                    tipPosition.addScaledVector(new THREE.Vector3().fromArray(app_state.leapMotion.finger.direction), app_state.leapMotion.finger.length / 5.0);
+                    const normalizedTipPosition = app_state.leapMotion.normalizePosition(tipPosition);
+                    parameters.tempo.value = normalizedTipPosition.x;
+                    parameters.volume.value = normalizedTipPosition.y;
                     const msCurrentPoint = frame.timestamp / 1000;
-                    const currentPoint = new THREE.Vector3().fromArray(tipPosition);
+                    const currentPoint = tipPosition.clone();
                     if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
                         tracePoints.unshift(currentPoint);
                         msLastPoint = msCurrentPoint;
@@ -317,9 +375,7 @@
                         tracePoints.pop();
                 }
             }
-            prevFinger = finger;
         }
-        prevHand = hand;
     }
 
     window.controller = controller = new Leap.Controller;
@@ -350,15 +406,15 @@
         stats: stats,
         camera: camera,
         boneLabels: function (boneMesh, leapHand) {
-            const fingerName = `Finger_${prevFinger.type}3`;
-            if (boneMesh.name === fingerName && leapHand.id == prevHand.id) {
+            const fingerName = `Finger_${app_state.leapMotion.finger.type}3`;
+            if (boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
                 return ['tempo', 'volume', 'ml']
                     .map(a => `${a}: ${(parameters[a].value).toFixed(2)}`).join(', ');
             }
         },
         boneColors: function (boneMesh, leapHand) {
-            const fingerNamePrefix = `Finger_${prevFinger.type}`;
-            if ((boneMesh.name.indexOf(fingerNamePrefix) === 0) && leapHand.id == prevHand.id) {
+            const fingerNamePrefix = `Finger_${app_state.leapMotion.finger.type}`;
+            if ((boneMesh.name.indexOf(fingerNamePrefix) === 0) && leapHand.id == app_state.leapMotion.hand.id) {
                 return {
                     hue: 0.0,
                     lightness: 0.5,
