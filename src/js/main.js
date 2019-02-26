@@ -40,8 +40,16 @@
             finger: Leap.Finger.Invalid,
             previousHand: Leap.Hand.Invalid,
             previousFinger: Leap.Finger.Invalid,
-            min: new THREE.Vector3(-150, 100, -80),
-            max: new THREE.Vector3(150, 400, 80),
+            boxWidth: 300,
+            boxHeight: 300,
+            boxDepth: 160,
+            boxVerticalOffset: 250,
+            get min() {
+                return new THREE.Vector3(-this.boxWidth / 2.0, this.boxVerticalOffset - this.boxHeight / 2.0, -this.boxDepth / 2.0);
+            },
+            get max() {
+                return new THREE.Vector3(this.boxWidth / 2.0, this.boxVerticalOffset + this.boxHeight / 2.0, +this.boxDepth / 2.0);
+            },
             normalizePosition: function (point, clamp = true) {
                 const result = point.clone();
                 if (clamp)
