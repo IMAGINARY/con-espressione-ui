@@ -44,19 +44,27 @@
             boxHeight: 300,
             boxDepth: 160,
             boxVerticalOffset: 250,
+            clamp: true,
             get min() {
                 return new THREE.Vector3(-this.boxWidth / 2.0, this.boxVerticalOffset - this.boxHeight / 2.0, -this.boxDepth / 2.0);
             },
             get max() {
                 return new THREE.Vector3(this.boxWidth / 2.0, this.boxVerticalOffset + this.boxHeight / 2.0, +this.boxDepth / 2.0);
             },
+            get size() {
+                return new THREE.Vector3(this.boxWidth, this.boxHeight, this.boxDepth);
+            },
+            clampPosition: function (point) {
+                return point.clone().clamp(this.min, this.max);
+            },
             normalizePosition: function (point, clamp = true) {
-                const result = point.clone();
-                if (clamp)
-                    result.clamp(this.min, this.max);
+                const result = clamp ? this.clampPosition(point) : point.clone();
                 return result
                     .sub(this.min)
                     .divide(new THREE.Vector3().subVectors(this.max, this.min));
+            },
+            unnormalizePosition: function (point) {
+                const result = point.clone().multiply(this.size()).addVector(this.min());
             }
         },
         objects: {
@@ -342,6 +350,7 @@
         leapMotionFolder.add(app_state.leapMotion, "boxHeight", 0, 1000);
         leapMotionFolder.add(app_state.leapMotion, "boxDepth", 0, 1000);
         leapMotionFolder.add(app_state.leapMotion, "boxVerticalOffset", 0, 1000);
+        leapMotionFolder.add(app_state.leapMotion, "clamp");
 
         const objectsFolder = datgui.addFolder('objects');
 
@@ -393,6 +402,8 @@
                 if (app_state.leapMotion.finger.valid) {
                     const tipPosition = new THREE.Vector3().fromArray(app_state.leapMotion.finger.stabilizedTipPosition);
                     tipPosition.addScaledVector(new THREE.Vector3().fromArray(app_state.leapMotion.finger.direction), app_state.leapMotion.finger.length / 5.0);
+                    if (app_state.leapMotion.clamp)
+                        tipPosition.copy(app_state.leapMotion.clampPosition(tipPosition));
                     const normalizedTipPosition = app_state.leapMotion.normalizePosition(tipPosition);
                     parameters.tempo.value = normalizedTipPosition.x;
                     parameters.volume.value = normalizedTipPosition.y;
