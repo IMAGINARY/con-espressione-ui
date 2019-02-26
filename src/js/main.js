@@ -58,6 +58,12 @@
                     .sub(this.min)
                     .divide(new THREE.Vector3().subVectors(this.max, this.min));
             }
+        },
+        objects: {
+            curve: false,
+            particles: true,
+            box: true,
+            label: false,
         }
     }
 
@@ -127,6 +133,7 @@
     const NUM_POINTS = 20;
     const tracePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)];
     const traceGeometry = new THREE.BufferGeometry().setFromPoints(tracePoints);
+    let traceCurve = null;
 
     function createBoxLineSegmentsGeometry() {
         const lineSegments = new THREE.Geometry();
@@ -177,7 +184,7 @@
         hands.position.set(0.0, 130.0, 0.0);
         scene.add(hands);
 
-        const traceCurve = new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000}));
+        traceCurve = new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000}));
         traceCurve.frustumCulled = false;
         hands.add(traceCurve);
 
@@ -241,10 +248,14 @@
     function animate() {
         interactionBox.position.addVectors(app_state.leapMotion.min, app_state.leapMotion.max).multiplyScalar(0.5);
         interactionBox.scale.subVectors(app_state.leapMotion.max, app_state.leapMotion.min);
+        interactionBox.visible = app_state.objects.box;
 
         traceGeometry.setFromPoints(computeInBetweenTracePoints(tracePoints));
         traceGeometry.verticesNeedUpdate = true;
+        traceCurve.visible = app_state.objects.curve;
+
         updateParticles(tracePoints[0]);
+        particleScope.system.visible = app_state.objects.particles;
     }
 
     function initOverlayScene(element) {
@@ -325,6 +336,20 @@
 
         particleFolder.add(app_state.particleSpawnerOptions, "spawnRate", 10, 30000);
         particleFolder.add(app_state.particleSpawnerOptions, "timeScale", -1, 1);
+
+        const leapMotionFolder = datgui.addFolder('leap motion');
+
+        leapMotionFolder.add(app_state.leapMotion, "boxWidth", 0, 1000);
+        leapMotionFolder.add(app_state.leapMotion, "boxHeight", 0, 1000);
+        leapMotionFolder.add(app_state.leapMotion, "boxDepth", 0, 1000);
+        leapMotionFolder.add(app_state.leapMotion, "boxVerticalOffset", 0, 1000);
+
+        const objectsFolder = datgui.addFolder('objects');
+
+        objectsFolder.add(app_state.objects, "curve");
+        objectsFolder.add(app_state.objects, "particles");
+        objectsFolder.add(app_state.objects, "box");
+        objectsFolder.add(app_state.objects, "label");
     }
 
     if (webglAvailable) {
@@ -416,7 +441,7 @@
         camera: camera,
         boneLabels: function (boneMesh, leapHand) {
             const fingerName = `Finger_${app_state.leapMotion.finger.type}3`;
-            if (boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
+            if (app_state.objects.label && boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
                 return ['tempo', 'volume', 'ml']
                     .map(a => `${a}: ${(parameters[a].value).toFixed(2)}`).join(', ');
             }
