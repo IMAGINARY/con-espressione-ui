@@ -25,8 +25,8 @@
             color: 0xaa88ff,
             colorRandomness: .2,
             turbulence: .5,
-            lifetime: 2,
-            size: 5,
+            lifetime: 6,
+            size: 7,
             sizeRandomness: 1
         },
         particleSpawnerOptions: {
