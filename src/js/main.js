@@ -213,6 +213,7 @@
             const spawnParticles = spawnerOptions.spawnRate * delta;
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
+            options.color = new THREE.Color(parameters.tempo.value, parameters.volume.value, parameters.ml.value);
             if (app_state.leapMotion.previousFinger.valid) {
                 for (var x = 0; x < spawnParticles; x++) {
                     options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
