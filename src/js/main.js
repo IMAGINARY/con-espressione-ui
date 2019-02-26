@@ -42,7 +42,7 @@
             previousFinger: Leap.Finger.Invalid,
             boxWidth: 300,
             boxHeight: 300,
-            boxDepth: 160,
+            boxDepth: 200,
             boxVerticalOffset: 250,
             clamp: true,
             get min() {
@@ -186,9 +186,9 @@
         pointLight.position.copy(new THREE.Vector3(0, 100, 1000));
         pointLight.lookAt(new THREE.Vector3(0, 200, 0));
         scene.add(pointLight);
-        window.camera = new THREE.OrthographicCamera(window.innerWidth / -5, window.innerWidth / 5, window.innerHeight / 5, window.innerHeight / -5, 1, 1000);
-//        window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.fromArray([0, 350, 500]);
+//        window.camera = new THREE.OrthographicCamera(window.innerWidth / -5, window.innerWidth / 5, window.innerHeight / 5, window.innerHeight / -5, 1, 1000);
+        window.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.fromArray([0, 350, 550]);
         camera.lookAt(new THREE.Vector3(0, 350, 0));
         window.controls = new THREE.OrbitControls(camera);
         window.controls.target = new THREE.Vector3(0, 350, 0);
