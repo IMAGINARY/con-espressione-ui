@@ -102,7 +102,7 @@
                 l(this._value);
             },
             removeValueChangeListener: function () {
-                const i = this._listeners.indedOf(l);
+                const i = this._listeners.indexOf(l);
                 if (i >= 0) this._listeners = this._listeners.splice(i, 1);
             },
             userData: userData
