@@ -5,10 +5,12 @@
 // https://github.com/leapmotion/leapjs-rigged-hand
 
 (function () {
-    const parameters = {
-        volume: createParameterModel('volume', 0.5, {animate: false}),
+    const outputParameters = {
+        loudness: createParameterModel('loudness', 0.5, {animate: false}),
         tempo: createParameterModel('tempo', 0.5, {animate: false}),
         ml: createParameterModel('ml', 0.5, {animate: false}),
+    };
+    const inputParameters = {
         mlLoudness: createParameterModel('mlLoudness', 0.5, {animate: true}),
         mlDynamicSpread: createParameterModel('mlDynamicSpread', 0.5, {animate: true}),
         mlTempo: createParameterModel('mlTempo', 0.5, {animate: true}),
@@ -91,7 +93,7 @@
                     this._prevValue = this._value;
                     this._value = v;
                     for (let callback of this._listeners)
-                        callback(this._value);
+                        callback(this._value, this._prevValue, this);
                 }
             },
             get value() {
@@ -114,18 +116,29 @@
         div.innerText = parameterModel.id;
         div.id = parameterModel.id;
         div.classList.add('parameterBar');
-        const intermediate = {value: parameterModel.value};
-        let tween = new TWEEN.Tween(intermediate).to({value: parameterModel.value}).start();
-        const callback = v => {
-            tween.stop();
-            tween = new TWEEN
-                .Tween(intermediate)
-                .to({value: v}, animate ? 200 : 0)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .onUpdate(function () {
-                    div.style.width = `${this.value * 90}%`
-                })
-                .start();
+        const ts = 0;
+        const animator = {
+            begin: {timestamp: ts, value: parameterModel.value},
+            current: {timestamp: ts, value: parameterModel.value},
+            end: {timestamp: ts, value: parameterModel.value},
+            update: function () {
+                const timestamp = performance.now();
+                this.current.timestamp = Math.max(this.begin.timestamp, Math.min(timestamp, this.end.timestamp));
+                const t = (this.current.timestamp - this.begin.timestamp) / (this.end.timestamp - this.begin.timestamp);
+                this.current.value = this.begin.value + (this.end.value - this.begin.value) * (Number.isFinite(t) ? t : 1.0);
+                div.style.width = `calc(150px + ${animator.current.value * 90}%)`
+            }
+        };
+        parameterModel.userData.animator = animator;
+
+        const maxDuration = animate ? 200 : 0;
+        const callback = (v) => {
+            animator.begin.timestamp = performance.now();
+            animator.begin.value = animator.current.value;
+            animator.end.value = v;
+            const duration = Math.min(maxDuration, 1000 * Math.abs(animator.end.value - animator.current.value));
+            animator.end.timestamp = animator.begin.timestamp + duration;
+            animator.update();
         };
         parameterModel.addValueListener(callback);
         return div;
@@ -241,7 +254,7 @@
             const spawnParticles = spawnerOptions.spawnRate * delta;
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
-            options.color = new THREE.Color(parameters.tempo.value, parameters.volume.value, parameters.ml.value);
+            options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.ml.value);
             if (app_state.leapMotion.previousFinger.valid) {
                 for (var x = 0; x < spawnParticles; x++) {
                     options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
@@ -259,6 +272,8 @@
     }
 
     function animate() {
+        Object.values(inputParameters).forEach(p => p.userData.animator.update());
+
         controls.enabled = app_state.controls.camera;
 
         interactionBox.position.addVectors(app_state.leapMotion.min, app_state.leapMotion.max).multiplyScalar(0.5);
@@ -276,7 +291,8 @@
     function initOverlayScene(element) {
         const container = document.createElement('div');
         container.id = 'parameterBarContainer';
-        Object.values(parameters).forEach(p => container.appendChild(createParameterView(p, p.userData.animate)));
+        Object.values(outputParameters).forEach(p => container.appendChild(createParameterView(p, p.userData.animate)));
+        Object.values(inputParameters).forEach(p => container.appendChild(createParameterView(p, p.userData.animate)));
         element.appendChild(container);
     };
 
@@ -297,7 +313,7 @@
         const midiSlider = WebMidi.getInputByName("SOLO Control");
         midiSlider.addListener('controlchange', "all", e => {
             if (app_state.controls.mlMIDI)
-                parameters.ml.value = e.value / 127.0;
+                outputParameters.ml.value = e.value / 127.0;
         });
 
         const midiInput = WebMidi.getInputByName("LeapControl");
@@ -305,7 +321,7 @@
 
         const midiOutParameterMap = {
             tempo: 20,
-            volume: 21,
+            loudness: 21,
             ml: 22,
         }
         const MIDI_OUT_CHANNEL = 1;
@@ -318,7 +334,7 @@
         stopPlaying();
         startPlaying();
 
-        Object.entries(midiOutParameterMap).forEach(e => parameters[e[0]].addValueListener(v => sendMidiParam(e[1], v * 127)));
+        Object.entries(midiOutParameterMap).forEach(e => outputParameters[e[0]].addValueListener(v => sendMidiParam(e[1], v * 127)));
 
         const midiInParameterMap = {
             '110': 'mlLoudness',
@@ -332,7 +348,7 @@
                 if (e.controller.number >= 110 && e.controller.number <= 114) {
                     const value = e.value / 127.0;
                     const id = midiInParameterMap[e.controller.number];
-                    parameters[id].value = value;
+                    inputParameters[id].value = value;
                 }
             }
         );
@@ -421,10 +437,10 @@
                     if (app_state.leapMotion.clamp)
                         tipPosition.copy(app_state.leapMotion.clampPosition(tipPosition));
                     const normalizedTipPosition = app_state.leapMotion.normalizePosition(tipPosition);
-                    parameters.tempo.value = normalizedTipPosition.x;
-                    parameters.volume.value = normalizedTipPosition.y;
+                    outputParameters.tempo.value = normalizedTipPosition.x;
+                    outputParameters.loudness.value = normalizedTipPosition.y;
                     if (app_state.controls.mlLeapMotion)
-                        parameters.ml.value = 1.0 - normalizedTipPosition.z;
+                        outputParameters.ml.value = 1.0 - normalizedTipPosition.z;
                     const msCurrentPoint = frame.timestamp / 1000;
                     const currentPoint = tipPosition.clone();
                     if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
@@ -452,7 +468,6 @@
         helper: false,
         offset: new THREE.Vector3(0, 0, 0),
         renderFn: function () {
-            TWEEN.update();
             animate();
             renderer.render(scene, camera);
             return controls.update();
@@ -470,8 +485,8 @@
         boneLabels: function (boneMesh, leapHand) {
             const fingerName = `Finger_${app_state.leapMotion.finger.type}3`;
             if (app_state.objects.label && boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
-                return ['tempo', 'volume', 'ml']
-                    .map(a => `${a}: ${(parameters[a].value).toFixed(2)}`).join(', ');
+                return ['tempo', 'loudness', 'ml']
+                    .map(a => `${a}: ${(outputParameters[a].value).toFixed(2)}`).join(', ');
             }
         },
         boneColors: function (boneMesh, leapHand) {
