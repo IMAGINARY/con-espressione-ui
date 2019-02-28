@@ -1,49 +1,108 @@
-#parameterBarContainer {
+body {
+    overflow: hidden;
+}
+
+.parameters * {
+    --parameter-bar-height: 20px;
+    --parameter-bar-border-width: 3px;
+}
+
+.parameters .loudness {
+    --parameter-color: hsl(345, 80%, 50%);
+    --parameter-second-color: hsl(345, 70%, 75%);
+    --parameter-third-color: hsl(345, 70%, 85%);
+}
+
+.parameters .tempo {
+    --parameter-color: hsl(128, 50%, 47%);
+    --parameter-second-color: hsl(128, 40%, 75%);
+    --parameter-third-color: hsl(128, 40%, 85%);
+}
+
+.parameters .ml {
+    --parameter-color: hsl(303, 86%, 57%);
+    --parameter-second-color: hsl(303, 76%, 75%);
+    --parameter-third-color: hsl(303, 76%, 85%);
+}
+
+.parameters .mlLoudness {
+    --parameter-color: hsl(52, 100%, 55%);
+    --parameter-second-color: hsl(52, 90%, 75%);
+    --parameter-third-color: hsl(52, 90%, 85%);
+}
+
+.parameters .mlDynamicSpread {
+    --parameter-color: hsl(227, 66%, 55%);
+    --parameter-second-color: hsl(227, 56%, 75%);
+    --parameter-third-color: hsl(227, 56%, 85%);
+}
+
+.parameters .mlTempo {
+    --parameter-color: hsl(25, 91%, 58%);
+    --parameter-second-color: hsl(25, 81%, 75%);
+    --parameter-third-color: hsl(25, 81%, 85%);
+}
+
+.parameters .mlMicroTiming {
+    --parameter-color: hsl(286, 71%, 41%);
+    --parameter-second-color: hsl(286, 61%, 75%);
+    --parameter-third-color: hsl(286, 61%, 85%);
+}
+
+.parameters .mlArticulation {
+    --parameter-color: hsl(180, 85%, 61%);
+    --parameter-second-color: hsl(180, 75%, 75%);
+    --parameter-third-color: hsl(180, 75%, 85%);
+}
+
+.parameters {
     position: absolute;
+    box-sizing: border-box;
     width: 100vw;
     bottom: 0px;
     left: 0px;
+    display: grid;
+    grid-template-columns: min-content auto;
+    grid-row-gap: 3px;
+    padding: 5px;
 }
 
-.parameterBar {
-    width: 0%;
-    text-align: left;
-    margin-left: 0px;
-    margin-right: auto;
+.parameters .label {
     font-family: sans-serif;
-    background-color: #777777;
+    color: var(--parameter-color);
+    height: var(--parameter-bar-height);
+    padding-right: 7px;
+    text-align: right;
+
 }
 
-#volume.parameterBar {
-    background-color: #e6194b;
+.parameters .bar {
+    box-sizing: border-box;
+    position: relative;
+    border: var(--parameter-bar-border-width) solid var(--parameter-color);
+    border-radius: 5px;
+    width: 100%;
+    height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
+    background-color: var(--parameter-third-color);
 }
 
-#tempo.parameterBar {
-    background-color: #3cb44b;
+.parameters .minValue {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: var(--parameter-bar-height);
+    width: 60%;
+    background-color: var(--parameter-color);
 }
 
-#ml.parameterBar {
-    background-color: #f032e6;
-}
-
-#mlLoudness.parameterBar {
-    background-color: #ffe119;
-}
-
-#mlDynamicSpread.parameterBar {
-    background-color: #4363d8;
-}
-
-#mlTempo.parameterBar {
-    background-color: #f58231;
-}
-
-#mlMicroTiming.parameterBar {
-    background-color: #911eb4;
-}
-
-#mlArticulation.parameterBar {
-    background-color: #46f0f0;
+.parameters .value {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: var(--parameter-bar-height);
+    width: 70%;
+    background-color: var(--parameter-second-color);
+    border-right: var(--parameter-color) solid var(--parameter-bar-border-width);
 }
 
 #stats {

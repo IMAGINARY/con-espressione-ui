@@ -111,37 +111,57 @@
         };
     };
 
-    function createParameterView(parameterModel, animate) {
-        const div = document.createElement('div');
-        div.innerText = parameterModel.id;
-        div.id = parameterModel.id;
-        div.classList.add('parameterBar');
-        const ts = 0;
-        const animator = {
-            begin: {timestamp: ts, value: parameterModel.value},
-            current: {timestamp: ts, value: parameterModel.value},
-            end: {timestamp: ts, value: parameterModel.value},
+    function createAnimator(initialValue, callback) {
+        const ts = performance.now();
+        return {
+            begin: {timestamp: ts, value: initialValue},
+            current: {timestamp: ts, value: initialValue},
+            end: {timestamp: ts, value: initialValue},
             update: function () {
                 const timestamp = performance.now();
                 this.current.timestamp = Math.max(this.begin.timestamp, Math.min(timestamp, this.end.timestamp));
                 const t = (this.current.timestamp - this.begin.timestamp) / (this.end.timestamp - this.begin.timestamp);
                 this.current.value = this.begin.value + (this.end.value - this.begin.value) * (Number.isFinite(t) ? t : 1.0);
-                div.style.width = `calc(150px + ${animator.current.value * 90}%)`
+                callback(this.current.value, this);
             }
-        };
-        parameterModel.userData.animator = animator;
+        }
+    }
+
+    function createParameterView(parentDomElement, parameterModel, animate) {
+
+        const label = document.createElement('div');
+        label.innerText = parameterModel.id;
+        label.classList.add('label', parameterModel.id);
+
+        const value = document.createElement('div');
+        value.classList.add('value', parameterModel.id);
+
+        const minValue = document.createElement('div');
+        minValue.classList.add('minValue', parameterModel.id);
+
+        const bar = document.createElement('div');
+        bar.classList.add('bar', parameterModel.id);
+        bar.appendChild(value);
+        bar.appendChild(minValue);
 
         const maxDuration = animate ? 200 : 0;
-        const callback = (v) => {
-            animator.begin.timestamp = performance.now();
-            animator.begin.value = animator.current.value;
-            animator.end.value = v;
-            const duration = Math.min(maxDuration, 1000 * Math.abs(animator.end.value - animator.current.value));
-            animator.end.timestamp = animator.begin.timestamp + duration;
-            animator.update();
-        };
-        parameterModel.addValueListener(callback);
-        return div;
+        const animator = createAnimator(parameterModel.value, (v, animator) => {
+            bar.style.width = `${100 * v}%`;
+            if (parameterModel.value !== animator.end.value) {
+                animator.begin.timestamp = performance.now();
+                animator.begin.value = animator.current.value;
+                animator.end.value = parameterModel.value;
+                const duration = Math.min(maxDuration, 1000 * Math.abs(animator.end.value - animator.current.value));
+                animator.end.timestamp = animator.begin.timestamp + duration;
+                animator.update();
+            }
+        });
+        parameterModel.userData.animator = animator;
+
+        parentDomElement.appendChild(label);
+        parentDomElement.appendChild(bar);
+
+        return [label, bar];
     }
 
     let controller, stats;
@@ -272,6 +292,7 @@
     }
 
     function animate() {
+        Object.values(outputParameters).forEach(p => p.userData.animator.update());
         Object.values(inputParameters).forEach(p => p.userData.animator.update());
 
         controls.enabled = app_state.controls.camera;
@@ -290,9 +311,9 @@
 
     function initOverlayScene(element) {
         const container = document.createElement('div');
-        container.id = 'parameterBarContainer';
-        Object.values(outputParameters).forEach(p => container.appendChild(createParameterView(p, p.userData.animate)));
-        Object.values(inputParameters).forEach(p => container.appendChild(createParameterView(p, p.userData.animate)));
+        container.classList.add('parameters');
+        Object.values(outputParameters).forEach(p => createParameterView(container, p, p.userData.animate));
+        Object.values(inputParameters).forEach(p => createParameterView(container, p, p.userData.animate));
         element.appendChild(container);
     };
 
