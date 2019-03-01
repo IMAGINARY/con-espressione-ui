@@ -111,6 +111,7 @@
             particles: true,
             box: true,
             label: false,
+            outputParameters: false,
         },
         controls: {
             mlMIDI: true,
@@ -332,8 +333,14 @@
     }
 
     function animate() {
-        Object.values(outputParameters).forEach(p => p.userData.animator.update());
+        Object.values(outputParameters).forEach(p => {
+            const elements = document.getElementsByClassName(p.id);
+            for (let e of elements)
+                e.style.visibility = app_state.objects.outputParameters ? 'unset' : 'hidden';
+            p.userData.animator.update();
+        });
         Object.values(inputParameters).forEach(p => p.userData.animator.update());
+
 
         controls.enabled = app_state.controls.camera;
 
@@ -447,6 +454,7 @@
         objectsFolder.add(app_state.objects, "particles");
         objectsFolder.add(app_state.objects, "box");
         objectsFolder.add(app_state.objects, "label");
+        objectsFolder.add(app_state.objects, "outputParameters");
 
         const controlsFolder = datgui.addFolder('controls');
 
