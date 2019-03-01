@@ -340,7 +340,7 @@
         Object.values(outputParameters).forEach(p => {
             const elements = document.getElementsByClassName(p.id);
             for (let e of elements)
-                e.style.visibility = app_state.objects.outputParameters ? 'unset' : 'hidden';
+                e.style.display = app_state.objects.outputParameters ? 'unset' : 'none';
             p.userData.animator.update();
         });
         Object.values(inputParameters).forEach(p => p.userData.animator.update());

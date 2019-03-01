@@ -64,7 +64,7 @@ body {
     display: grid;
     grid-template-columns: min-content auto;
     grid-row-gap: 3px;
-    padding: 5px;
+    padding: 0px 20px 10px 20px;
 }
 
 .parameters .label {
@@ -73,7 +73,7 @@ body {
     height: var(--parameter-bar-height);
     padding-right: 7px;
     text-align: right;
-
+    line-height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
 }
 
 .parameters .bar {
