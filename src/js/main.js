@@ -171,8 +171,12 @@
         label.innerText = parameterModel.id;
         label.classList.add('label', parameterModel.id);
 
+        const marker = document.createElement('div');
+        marker.classList.add('marker', parameterModel.id);
+
         const value = document.createElement('div');
         value.classList.add('value', parameterModel.id);
+        value.appendChild(marker);
 
         const minValue = document.createElement('div');
         minValue.classList.add('minValue', parameterModel.id);

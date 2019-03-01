@@ -97,13 +97,40 @@ body {
 }
 
 .parameters .value {
-    position: absolute;
+    position: relative;
     top: 0px;
     left: 0px;
     height: var(--parameter-bar-height);
     width: 70%;
     background-color: var(--parameter-second-color);
     border-right: var(--parameter-color) solid var(--parameter-bar-border-width);
+}
+
+.marker {
+    position: absolute;
+    left: 100%;
+}
+
+.marker::before {
+    content: "";
+    position: absolute;
+    border-color: var(--parameter-color) transparent var(--parameter-color) transparent;
+    border-style: solid;
+    border-width: 5px 5px 5px 5px;
+    left: -5px;
+    height: 10px;
+    width: 2px;
+}
+
+.marker::after {
+    content: "";
+    position: absolute;
+    border-color: var(--parameter-color);
+    border-style: solid;
+    border-width: 0px 2px 0px 2px;
+    height: 20px;
+    left: -1px;
+    width: 0px;
 }
 
 #stats {
