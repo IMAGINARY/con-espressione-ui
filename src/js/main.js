@@ -6,17 +6,54 @@
 
 (function () {
     const outputParameters = {
-        loudness: createParameterModel('loudness', 0.5, {animate: false}),
         tempo: createParameterModel('tempo', 0.5, {animate: false}),
+        loudness: createParameterModel('loudness', 0.5, {animate: false}),
         ml: createParameterModel('ml', 0.5, {animate: false}),
     };
     const inputParameters = {
-        mlLoudness: createParameterModel('mlLoudness', 0.5, {animate: true}),
-        mlDynamicSpread: createParameterModel('mlDynamicSpread', 0.5, {animate: true}),
         mlTempo: createParameterModel('mlTempo', 0.5, {animate: true}),
+        mlLoudness: createParameterModel('mlLoudness', 0.5, {animate: true}),
         mlMicroTiming: createParameterModel('mlMicroTiming', 0.5, {animate: true}),
+        mlDynamicSpread: createParameterModel('mlDynamicSpread', 0.5, {animate: true}),
         mlArticulation: createParameterModel('mlArticulation', 0.5, {animate: true}),
     };
+
+    // attach range callbacks to parameters
+    {
+        const fullRangeCallback = () => {
+            return {min: 0, max: 1};
+        };
+        outputParameters.loudness.userData.rangeCallback = fullRangeCallback;
+        outputParameters.tempo.userData.rangeCallback = fullRangeCallback;
+        outputParameters.ml.userData.rangeCallback = fullRangeCallback;
+
+        inputParameters.mlLoudness.userData.rangeCallback = () => {
+            const ml = outputParameters.ml.value;
+            return {
+                min: outputParameters.loudness.value * (1 - ml),
+                max: outputParameters.loudness.value,
+            }
+        };
+
+        inputParameters.mlTempo.userData.rangeCallback = () => {
+            const ml = outputParameters.ml.value;
+            return {
+                min: outputParameters.tempo.value * (1 - ml),
+                max: outputParameters.tempo.value,
+            }
+        };
+
+        const mlRangeCallback = () => {
+            const ml = outputParameters.ml.value;
+            return {
+                min: 0.5 * (1 - ml),
+                max: 0.5 * (1 + ml),
+            }
+        };
+        inputParameters.mlDynamicSpread.userData.rangeCallback = mlRangeCallback;
+        inputParameters.mlMicroTiming.userData.rangeCallback = mlRangeCallback;
+        inputParameters.mlArticulation.userData.rangeCallback = mlRangeCallback;
+    }
 
     const app_state = {
         particleOptions: {
@@ -127,7 +164,7 @@
         }
     }
 
-    function createParameterView(parentDomElement, parameterModel, animate) {
+    function createParameterView(parentDomElement, parameterModel, rangeCallback, animate) {
 
         const label = document.createElement('div');
         label.innerText = parameterModel.id;
@@ -146,7 +183,10 @@
 
         const maxDuration = animate ? 200 : 0;
         const animator = createAnimator(parameterModel.value, (v, animator) => {
-            bar.style.width = `${100 * v}%`;
+            const {min, max} = rangeCallback();
+            bar.style.width = `${100 * max}%`;
+            minValue.style.width = `${100 * (min / max)}%`;
+            value.style.width = `${100 * (min + (max - min) * v) / max}%`;
             if (parameterModel.value !== animator.end.value) {
                 animator.begin.timestamp = performance.now();
                 animator.begin.value = animator.current.value;
@@ -312,8 +352,9 @@
     function initOverlayScene(element) {
         const container = document.createElement('div');
         container.classList.add('parameters');
-        Object.values(outputParameters).forEach(p => createParameterView(container, p, p.userData.animate));
-        Object.values(inputParameters).forEach(p => createParameterView(container, p, p.userData.animate));
+
+        Object.values(outputParameters).forEach(p => createParameterView(container, p, p.userData.rangeCallback, p.userData.animate));
+        Object.values(inputParameters).forEach(p => createParameterView(container, p, p.userData.rangeCallback, p.userData.animate));
         element.appendChild(container);
     };
 
@@ -367,9 +408,10 @@
         midiInput.addListener('controlchange', "all",
             function (e) {
                 if (e.controller.number >= 110 && e.controller.number <= 114) {
-                    const value = e.value / 127.0;
+                    const ml = outputParameters.ml.value;
+                    const value = 0.5 + (((e.value / 127.0) - 0.5) / ml);
                     const id = midiInParameterMap[e.controller.number];
-                    inputParameters[id].value = value;
+                    inputParameters[id].value = Math.max(0.0, Math.min(Number.isNaN(value) ? 0.5 : value, 1.0));
                 }
             }
         );

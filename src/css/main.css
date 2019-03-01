@@ -84,6 +84,7 @@ body {
     width: 100%;
     height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
     background-color: var(--parameter-third-color);
+    overflow: hidden;
 }
 
 .parameters .minValue {
