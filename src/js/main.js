@@ -294,7 +294,8 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            controls.handleResize(); // TODO
+            if (typeof controls.handleResize === "function")
+                controls.handleResize();
             return renderer.render(scene, camera);
         }, false);
         return renderer.render(scene, camera);
