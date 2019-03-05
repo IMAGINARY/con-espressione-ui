@@ -118,6 +118,9 @@
             mlLeapMotion: false,
             camera: false,
         },
+        playback: {
+            enabled: true,
+        }
     }
 
     function createParameterModel(id, initialValue, userData) {
@@ -381,19 +384,7 @@
     })();
 
     initMidi = function () {
-        let MIDIJS_success = false;
-        MIDI.loadPlugin({
-            soundfontUrl: "../../soundfont/FatBoy/",
-            instrument: "acoustic_grand_piano",
-            onprogress: function (state, progress) {
-                console.log(state, progress);
-            },
-            onsuccess: function () {
-                console.log("done loading MIDI.js soundfont");
-                MIDI.setVolume(0, 127);
-                MIDIJS_success = true;
-            }
-        });
+        midiPlayer.init();
 
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
@@ -442,21 +433,9 @@
             }
         );
 
-        midiInput.addListener('noteon', "1",
-            function (e) {
-                if (MIDIJS_success) {
-                    console.log(e);
-                    MIDI.noteOn(0, e.note.number, e.rawVelocity, 0);
-                }
-            }
-        );
-
-        midiInput.addListener('noteoff', "1",
-            function (e) {
-                if (MIDIJS_success)
-                    MIDI.noteOff(0, e.note.number, 0);
-            }
-        );
+        midiInput.addListener('controlchange', "1", e => e.controller.number === 64 ? midiPlayer.setHold(e.value < 64 ? false : true) : () => null);
+        midiInput.addListener('noteon', "1", e => midiPlayer.noteOn(0, e.note.number, e.rawVelocity, 0));
+        midiInput.addListener('noteoff', "1", e => midiPlayer.noteOff(0, e.note.number));
     };
 
     function initDatGui() {
@@ -496,6 +475,11 @@
         controlsFolder.add(app_state.controls, "mlMIDI");
         controlsFolder.add(app_state.controls, "mlLeapMotion");
         controlsFolder.add(app_state.controls, "camera");
+
+        const optionsFolder = datgui.addFolder('options');
+
+        const useMIDIJS = optionsFolder.add(app_state.playback, "enabled");
+        useMIDIJS.onChange(() => midiPlayer.setMute(!app_state.playback.enabled));
     }
 
     if (webglAvailable) {
