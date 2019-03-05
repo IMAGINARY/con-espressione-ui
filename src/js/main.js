@@ -381,6 +381,20 @@
     })();
 
     initMidi = function () {
+        let MIDIJS_success = false;
+        MIDI.loadPlugin({
+            soundfontUrl: "../../soundfont/FatBoy/",
+            instrument: "acoustic_grand_piano",
+            onprogress: function (state, progress) {
+                console.log(state, progress);
+            },
+            onsuccess: function () {
+                console.log("done loading MIDI.js soundfont");
+                MIDI.setVolume(0, 127);
+                MIDIJS_success = true;
+            }
+        });
+
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
 
@@ -425,6 +439,22 @@
                     const id = midiInParameterMap[e.controller.number];
                     inputParameters[id].value = Math.max(0.0, Math.min(Number.isNaN(value) ? 0.5 : value, 1.0));
                 }
+            }
+        );
+
+        midiInput.addListener('noteon', "1",
+            function (e) {
+                if (MIDIJS_success) {
+                    console.log(e);
+                    MIDI.noteOn(0, e.note.number, e.rawVelocity, 0);
+                }
+            }
+        );
+
+        midiInput.addListener('noteoff', "1",
+            function (e) {
+                if (MIDIJS_success)
+                    MIDI.noteOff(0, e.note.number, 0);
             }
         );
     };
