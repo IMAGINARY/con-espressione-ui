@@ -8,7 +8,7 @@
     const outputParameters = {
         tempo: createParameterModel('tempo', 0.5, {animate: false}),
         loudness: createParameterModel('loudness', 0.5, {animate: false}),
-        ml: createParameterModel('ml', 0.5, {animate: false}),
+        impact: createParameterModel('impact', 0.5, {animate: false}),
     };
     const inputParameters = {
         mlTempo: createParameterModel('mlTempo', 0.5, {animate: true}),
@@ -25,10 +25,10 @@
         };
         outputParameters.loudness.userData.rangeCallback = fullRangeCallback;
         outputParameters.tempo.userData.rangeCallback = fullRangeCallback;
-        outputParameters.ml.userData.rangeCallback = fullRangeCallback;
+        outputParameters.impact.userData.rangeCallback = fullRangeCallback;
 
         inputParameters.mlLoudness.userData.rangeCallback = () => {
-            const ml = outputParameters.ml.value;
+            const ml = outputParameters.impact.value;
             return {
                 min: outputParameters.loudness.value * (1 - ml),
                 max: outputParameters.loudness.value,
@@ -36,7 +36,7 @@
         };
 
         inputParameters.mlTempo.userData.rangeCallback = () => {
-            const ml = outputParameters.ml.value;
+            const ml = outputParameters.impact.value;
             return {
                 min: outputParameters.tempo.value * (1 - ml),
                 max: outputParameters.tempo.value,
@@ -44,7 +44,7 @@
         };
 
         const mlRangeCallback = () => {
-            const ml = outputParameters.ml.value;
+            const ml = outputParameters.impact.value;
             return {
                 min: 0.5 * (1 - ml),
                 max: 0.5 * (1 + ml),
@@ -323,7 +323,7 @@
             const spawnParticles = spawnerOptions.spawnRate * delta;
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
-            options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.ml.value);
+            options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
             if (app_state.leapMotion.previousFinger.valid) {
                 for (var x = 0; x < spawnParticles; x++) {
                     options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
@@ -384,57 +384,38 @@
     })();
 
     initMidi = function () {
-
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
 
         const midiSlider = WebMidi.getInputByName("SOLO Control");
         midiSlider.addListener('controlchange', "all", e => {
             if (app_state.controls.mlMIDI)
-                outputParameters.ml.value = e.value / 127.0;
+                outputParameters.impact.value = e.value / 127.0;
         });
 
-        const midiInput = WebMidi.getInputByName("LeapControl");
-        const midiOutput = WebMidi.getOutputByName("LeapControl");
-
-        const midiOutParameterMap = {
-            tempo: 20,
-            loudness: 21,
-            ml: 22,
-        }
-        const MIDI_OUT_CHANNEL = 1;
-        const sendMidiParam = (control, value) => midiOutput.sendControlChange(control, value, MIDI_OUT_CHANNEL);
-
-        window.startPlaying = () => sendMidiParam(24, 127, 0);
-        window.stopPlaying = () => sendMidiParam(25, 127, 0);
+        const backend = new MidiBackendProxy();
+        const mlKeyMap = {
+            'loudness': 'mlLoudness',
+            'dynamicSpread': 'mlDynamicSpread',
+            'tempo': 'mlTempo',
+            'microTiming': 'mlMicroTiming',
+            'articulation': 'mlArticulation',
+        };
+        backend.addParameterListener((key, value) => inputParameters[mlKeyMap[key]].value = value);
+        backend.addMusicListener({
+            'noteOn': (number, velocity) => midiPlayer.noteOn(0, number, velocity),
+            'noteOff': (number) => midiPlayer.noteOff(0, number),
+            'hold': (enable) => midiPlayer.hold = enable,
+        });
+        outputParameters.tempo.addValueListener(l => backend.tempo = l);
+        outputParameters.loudness.addValueListener(l => backend.loudness = l);
+        outputParameters.impact.addValueListener(l => backend.impact = l);
 
         // stop playing and play from the beginning
-        stopPlaying();
-        startPlaying();
+        backend.stopComposition();
+        backend.playComposition();
 
-        Object.entries(midiOutParameterMap).forEach(e => outputParameters[e[0]].addValueListener(v => sendMidiParam(e[1], v * 127)));
-
-        const midiInParameterMap = {
-            '110': 'mlLoudness',
-            '111': 'mlDynamicSpread',
-            '112': 'mlTempo',
-            '113': 'mlMicroTiming',
-            '114': 'mlArticulation',
-        };
-        midiInput.addListener('controlchange', "all",
-            function (e) {
-                if (e.controller.number >= 110 && e.controller.number <= 114) {
-                    const ml = outputParameters.ml.value;
-                    const value = 0.5 + (((e.value / 127.0) - 0.5) / ml);
-                    const id = midiInParameterMap[e.controller.number];
-                    inputParameters[id].value = Math.max(0.0, Math.min(Number.isNaN(value) ? 0.5 : value, 1.0));
-                }
-            }
-        );
-
-        midiInput.addListener('controlchange', "1", e => e.controller.number === 64 ? midiPlayer.hold = e.value < 64 ? false : true : null);
-        midiInput.addListener('noteon', "1", e => midiPlayer.noteOn(0, e.note.number, e.rawVelocity, 0));
-        midiInput.addListener('noteoff', "1", e => midiPlayer.noteOff(0, e.note.number));
+        window.backend = backend;
     };
 
     function initDatGui() {
@@ -532,7 +513,7 @@
                     outputParameters.tempo.value = normalizedTipPosition.x;
                     outputParameters.loudness.value = normalizedTipPosition.y;
                     if (app_state.controls.mlLeapMotion)
-                        outputParameters.ml.value = 1.0 - normalizedTipPosition.z;
+                        outputParameters.impact.value = 1.0 - normalizedTipPosition.z;
                     const msCurrentPoint = frame.timestamp / 1000;
                     const currentPoint = tipPosition.clone();
                     if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
@@ -577,7 +558,7 @@
         boneLabels: function (boneMesh, leapHand) {
             const fingerName = `Finger_${app_state.leapMotion.finger.type}3`;
             if (app_state.objects.label && boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
-                return ['tempo', 'loudness', 'ml']
+                return ['tempo', 'loudness', 'impact']
                     .map(a => `${a}: ${(outputParameters[a].value).toFixed(2)}`).join(', ');
             }
         },
