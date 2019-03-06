@@ -384,7 +384,6 @@
     })();
 
     initMidi = function () {
-        midiPlayer.init();
 
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
@@ -433,7 +432,7 @@
             }
         );
 
-        midiInput.addListener('controlchange', "1", e => e.controller.number === 64 ? midiPlayer.setHold(e.value < 64 ? false : true) : () => null);
+        midiInput.addListener('controlchange', "1", e => e.controller.number === 64 ? midiPlayer.hold = e.value < 64 ? false : true : null);
         midiInput.addListener('noteon', "1", e => midiPlayer.noteOn(0, e.note.number, e.rawVelocity, 0));
         midiInput.addListener('noteoff', "1", e => midiPlayer.noteOff(0, e.note.number));
     };
@@ -479,13 +478,16 @@
         const optionsFolder = datgui.addFolder('options');
 
         const useMIDIJS = optionsFolder.add(app_state.playback, "enabled");
-        useMIDIJS.onChange(() => midiPlayer.setMute(!app_state.playback.enabled));
+        useMIDIJS.onChange(() => midiPlayer.muted = !app_state.playback.enabled);
     }
 
+    let midiPlayer;
     if (webglAvailable) {
         initScene(document.body);
         initOverlayScene(document.body);
         initDatGui();
+
+        midiPlayer = new MidiPlayer();
         WebMidi.enable(function (err) {
             if (err) {
                 console.log("WebMidi could not be enabled.", err);
