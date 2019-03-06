@@ -1,5 +1,3 @@
-alert("add licenses for soundfonts")
-
 const midiPlayer = (function () {
     let isInitialized = false;
     let muted = false;
