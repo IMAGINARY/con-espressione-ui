@@ -200,3 +200,12 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+This software bundles sound fonts extracted from midi-js-soundfonts v0.2.1,
+which is available under a MIT license.
+
+The sound fonts themselves are licensed as follows:
+
+   FatBoy:     CC-BY 3.0
+   FluidR3_GM: CC-BY-SA 3.0
+   MusyngKite: CC-BY-SA 3.0
