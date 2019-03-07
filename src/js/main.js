@@ -387,10 +387,11 @@
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
 
-        const midiSlider = WebMidi.getInputByName("SOLO Control");
-        midiSlider.addListener('controlchange', "all", e => {
+        // TODO: make robust aka reconnect
+        const midiController = new MidiController("SOLO Control");
+        midiController.addListener(value => {
             if (app_state.controls.mlMIDI)
-                outputParameters.impact.value = e.value / 127.0;
+                outputParameters.impact.value = value / 127.0;
         });
 
         const backend = new MidiBackendProxy();
