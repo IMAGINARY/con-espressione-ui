@@ -64,7 +64,7 @@ class MidiBackendProxy {
         const playing = this._playing;
         if (playing)
             this.stopComposition();
-        this._sendControlChange(23, which);
+        this._sendSongSelect(which);
         if (playing)
             this.playComposition();
     }
@@ -191,6 +191,13 @@ class MidiBackendProxy {
     _sendControlChange(control, value) {
         if (this._midiOutput) {
             this._midiOutput.sendControlChange(control, value, 1);
+        }
+    }
+
+    _sendSongSelect(value) {
+        if (this._midiOutput) {
+            console.log(value);
+            this._midiOutput.sendSongSelect(value);
         }
     }
 }
