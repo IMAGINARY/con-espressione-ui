@@ -61,7 +61,12 @@ class MidiBackendProxy {
 
     selectComposition(which) {
         this._composition = which;
+        const playing = this._playing;
+        if (playing)
+            this.stopComposition();
         this._sendControlChange(23, which);
+        if (playing)
+            this.playComposition();
     }
 
     playComposition() {
