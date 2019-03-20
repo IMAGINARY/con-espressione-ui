@@ -117,6 +117,13 @@
             mlMIDI: true,
             mlLeapMotion: false,
             camera: false,
+            composition: 0,
+            play: function () {
+                midiBackend.playComposition();
+            },
+            stop: function () {
+                midiBackend.stopComposition();
+            },
         },
         playback: {
             enabled: true,
@@ -383,6 +390,7 @@
         }
     })();
 
+    let midiBackend;
     initMidi = function () {
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
@@ -394,7 +402,7 @@
                 outputParameters.impact.value = value / 127.0;
         });
 
-        const backend = new MidiBackendProxy();
+        midiBackend = new MidiBackendProxy();
         const mlKeyMap = {
             'loudness': 'mlLoudness',
             'dynamicSpread': 'mlDynamicSpread',
@@ -402,25 +410,23 @@
             'microTiming': 'mlMicroTiming',
             'articulation': 'mlArticulation',
         };
-        backend.addParameterListener((key, value) => inputParameters[mlKeyMap[key]].value = value);
-        backend.addMusicListener({
+        midiBackend.addParameterListener((key, value) => inputParameters[mlKeyMap[key]].value = value);
+        midiBackend.addMusicListener({
             'noteOn': (number, velocity) => midiPlayer.noteOn(0, number, velocity),
             'noteOff': (number) => midiPlayer.noteOff(0, number),
             'hold': (enable) => midiPlayer.hold = enable,
         });
-        outputParameters.tempo.addValueListener(l => backend.tempo = l);
-        outputParameters.loudness.addValueListener(l => backend.loudness = l);
-        outputParameters.impact.addValueListener(l => backend.impact = l);
+        outputParameters.tempo.addValueListener(l => midiBackend.tempo = l);
+        outputParameters.loudness.addValueListener(l => midiBackend.loudness = l);
+        outputParameters.impact.addValueListener(l => midiBackend.impact = l);
 
         // stop playing and play from the beginning
-        backend.stopComposition();
-        backend.playComposition();
-
-        window.backend = backend;
+        midiBackend.stopComposition();
+        midiBackend.playComposition();
     };
 
     function initDatGui() {
-        datgui = new dat.GUI({width: 350});
+        datgui = new dat.GUI({width: 400});
 
         const particleFolder = datgui.addFolder('particles');
 
@@ -452,10 +458,24 @@
         objectsFolder.add(app_state.objects, "outputParameters");
 
         const controlsFolder = datgui.addFolder('controls');
+        controlsFolder.open();
+
+        const compositions = {
+            "0: beethoven_op027_no2_mv1_bm_z": 0,
+            "1: chopin_op10_No3_bm_magaloff": 1,
+            "2: mozart_k331_3_batik": 2,
+            "3: beethoven_fuer_elise": 3,
+        };
 
         controlsFolder.add(app_state.controls, "mlMIDI");
         controlsFolder.add(app_state.controls, "mlLeapMotion");
         controlsFolder.add(app_state.controls, "camera");
+        const compositionSelector = controlsFolder.add(app_state.controls, "composition", compositions);
+        compositionSelector.onChange(() => {
+            midiBackend.selectComposition(app_state.controls.composition);
+        });
+        const playButton = controlsFolder.add(app_state.controls, "play");
+        const stopButton = controlsFolder.add(app_state.controls, "stop");
 
         const optionsFolder = datgui.addFolder('options');
 
