@@ -225,6 +225,7 @@
     window.hands = null;
     window.interactionBox = null;
     window.renderer = null;
+    window.effect = null;
     window.camera = null;
     window.datgui = null;
     window.particleScope = {system: null, clock: new THREE.Clock(), tick: 0};
@@ -298,7 +299,10 @@
             particleNoiseTex: textureLoader.load('../../lib/textures/perlin-512.jpg'),
             particleSpriteTex: textureLoader.load('../../lib/textures/particle2.png'),
         });
+        particleScope.system.particleShaderMat.userData.outlineParameters = {visible: false};
         hands.add(particleScope.system);
+
+        effect = new THREE.OutlineEffect(renderer);
 
         window.addEventListener('resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -306,9 +310,9 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             if (typeof controls.handleResize === "function")
                 controls.handleResize();
-            return renderer.render(scene, camera);
+            return effect.render(scene, camera);
         }, false);
-        return renderer.render(scene, camera);
+        return effect.render(scene, camera);
     };
 
     function computeInBetweenTracePoints(tracePoints) {
@@ -563,15 +567,24 @@
         offset: new THREE.Vector3(0, 0, 0),
         renderFn: function () {
             animate();
-            renderer.render(scene, camera);
+            //renderer.render(scene, camera);
+            effect.render(scene, camera);
             return controls.update();
         },
         materialOptions: {
             wireframe: false,
             transparent: false,
-            opacity: 1.0,
-            transparent: false,
-            color: new THREE.Color('white'),
+            opacity: 0.1,
+            transparent: true,
+            color: new THREE.Color('#FFFFFF'),
+            userData: {
+                outlineParameters: {
+                    visible: true,
+                    alpha: 0.5,
+                    thickness: 0.015,
+                    color: [1, 1, 1],
+                }
+            },
         },
         dotsMode: false,
         stats: stats,
