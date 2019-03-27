@@ -110,7 +110,7 @@
         objects: {
             curve: false,
             particles: true,
-            box: true,
+            box: false,
             label: false,
             outputParameters: false,
         },
