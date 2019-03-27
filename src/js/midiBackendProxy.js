@@ -140,7 +140,6 @@ class MidiBackendProxy {
                         '114': 'articulation',
                     };
                     this._midiInput.addListener('controlchange', parameterChannel,
-                        (e) => {
                         e => {
                             if (e.controller.number >= 110 && e.controller.number <= 114) {
                                 const key = midiInParameterMap[e.controller.number];
