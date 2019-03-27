@@ -61,7 +61,8 @@
             positionRandomness: .3,
             velocity: new THREE.Vector3(),
             velocityRandomness: .5,
-            color: 0xaa88ff,
+            color: "#aa88ff",
+            fixedColor: false,
             colorRandomness: .2,
             turbulence: .5,
             lifetime: 6,
@@ -322,7 +323,7 @@
     }
 
     function updateParticles(newPoint) {
-        const options = app_state.particleOptions;
+        const options = Object.assign({}, app_state.particleOptions);
         const spawnerOptions = app_state.particleSpawnerOptions;
         const delta = particleScope.clock.getDelta() * spawnerOptions.timeScale;
 
@@ -334,7 +335,9 @@
             const spawnParticles = spawnerOptions.spawnRate * delta;
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
-            options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
+
+            if (!options.fixedColor)
+                options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
             if (app_state.leapMotion.previousFinger.valid) {
                 for (var x = 0; x < spawnParticles; x++) {
                     options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
@@ -346,6 +349,7 @@
                     particleScope.system.spawnParticle(options);
                 }
             }
+            app_state.particleOptions.position = options.position;
         }
 
         particleScope.system.update(particleScope.tick);
@@ -438,6 +442,8 @@
         particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3);
         particleFolder.add(app_state.particleOptions, "size", 1, 20);
         particleFolder.add(app_state.particleOptions, "sizeRandomness", 0, 25);
+        particleFolder.add(app_state.particleOptions, "fixedColor");
+        particleFolder.addColor(app_state.particleOptions, "color");
         particleFolder.add(app_state.particleOptions, "colorRandomness", 0, 1);
         particleFolder.add(app_state.particleOptions, "lifetime", .1, 10);
         particleFolder.add(app_state.particleOptions, "turbulence", 0, 1);
