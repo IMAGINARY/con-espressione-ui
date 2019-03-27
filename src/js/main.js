@@ -61,7 +61,7 @@
             positionRandomness: .3,
             velocity: new THREE.Vector3(),
             velocityRandomness: .5,
-            color: "#aa88ff",
+            color: "#ff1493",
             fixedColor: false,
             colorRandomness: .2,
             turbulence: .5,
@@ -266,7 +266,7 @@
         window.renderer = new THREE.WebGLRenderer({
             alpha: true
         });
-        renderer.setClearColor(0x000000, 1);
+        renderer.setClearColor(0xFFFFFF, 1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         element.appendChild(renderer.domElement);
         axis = new THREE.AxesHelper(40);
@@ -588,7 +588,7 @@
                     visible: true,
                     alpha: 0.5,
                     thickness: 0.015,
-                    color: [1, 1, 1],
+                    color: [0, 0, 0],
                 }
             },
         },

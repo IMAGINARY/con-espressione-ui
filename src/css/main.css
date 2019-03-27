@@ -1,10 +1,24 @@
+/*
+Color palette:
+
+DeepPink #ff1493 rgb(255, 20, 147) hsl(328, 100%, 54%)
+#7bf2ff rgb(123, 242, 255) hsl(186, 100%, 74%)
+#7bd4a5 rgb(123, 212, 165) hsl(148, 51%, 66%)
+#df99ff rgb(223, 153, 255) hsl(281, 100%, 80%)
+#e2f794 rgb(226, 247, 148) hsl(73, 86%, 77%)
+*/
+
+
 body {
     overflow: hidden;
 }
 
 .parameters * {
     --parameter-bar-height: 20px;
-    --parameter-bar-border-width: 3px;
+    --parameter-bar-border-width: 2px;
+    --parameter-border-color-default: #777777;
+    --parameter-text-color: DimGray;
+    --parameter-border-color: LightGray;
 }
 
 .parameters .loudness {
@@ -26,33 +40,33 @@ body {
 }
 
 .parameters .mlLoudness {
-    --parameter-color: hsl(52, 100%, 55%);
-    --parameter-second-color: hsl(52, 90%, 75%);
-    --parameter-third-color: hsl(52, 90%, 85%);
+    --parameter-color: hsl(186, 100%, 74%);
+    --parameter-second-color: hsl(186, 100%, 85%);
+    --parameter-third-color: hsl(186, 100%, 95%);
 }
 
 .parameters .mlDynamicSpread {
-    --parameter-color: hsl(227, 66%, 55%);
-    --parameter-second-color: hsl(227, 56%, 75%);
-    --parameter-third-color: hsl(227, 56%, 85%);
+    --parameter-color: hsl(281, 100%, 80%);
+    --parameter-second-color: hsl(281, 100%, 90%);
+    --parameter-third-color: hsl(281, 100%, 95%);
 }
 
 .parameters .mlTempo {
-    --parameter-color: hsl(25, 91%, 58%);
-    --parameter-second-color: hsl(25, 81%, 75%);
-    --parameter-third-color: hsl(25, 81%, 85%);
+    --parameter-color: hsl(148, 51%, 66%);
+    --parameter-second-color: hsl(148, 51%, 83%);
+    --parameter-third-color: hsl(148, 51%, 91.5%);
 }
 
 .parameters .mlMicroTiming {
-    --parameter-color: hsl(286, 71%, 41%);
-    --parameter-second-color: hsl(286, 61%, 75%);
-    --parameter-third-color: hsl(286, 61%, 85%);
+    --parameter-color: hsl(328, 100%, 54%);
+    --parameter-second-color: hsl(328, 100%, 64%);
+    --parameter-third-color: hsl(328, 100%, 78%);
 }
 
 .parameters .mlArticulation {
-    --parameter-color: hsl(180, 85%, 61%);
-    --parameter-second-color: hsl(180, 75%, 75%);
-    --parameter-third-color: hsl(180, 75%, 85%);
+    --parameter-color: hsl(73, 86%, 77%);
+    --parameter-second-color: hsl(73, 86%, 88.5%);
+    --parameter-third-color: hsl(73, 86%, 94.25%);
 }
 
 .parameters {
@@ -69,7 +83,7 @@ body {
 
 .parameters .label {
     font-family: sans-serif;
-    color: var(--parameter-color);
+    color: var(--parameter-text-color);
     height: var(--parameter-bar-height);
     padding-right: 7px;
     text-align: right;
@@ -79,7 +93,7 @@ body {
 .parameters .bar {
     box-sizing: border-box;
     position: relative;
-    border: var(--parameter-bar-border-width) solid var(--parameter-color);
+    border: var(--parameter-bar-border-width) solid var(--parameter-border-color);
     border-radius: 5px;
     width: 100%;
     height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
