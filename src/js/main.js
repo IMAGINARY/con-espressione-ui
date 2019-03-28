@@ -55,6 +55,12 @@
         inputParameters.mlArticulation.userData.rangeCallback = mlRangeCallback;
     }
 
+    const particleColoring = {
+        "fixed": () => new THREE.Color(app_state.particleOptions.color),
+        "rgb(tempo, loudness, ml)": (t, l, i) => new THREE.Color(t, l, i),
+        "hsl(ml, tempo, loudness)": (t, l, i) => new THREE.Color().setHSL(i, t, l),
+    }
+
     const app_state = {
         particleOptions: {
             position: new THREE.Vector3(),
@@ -62,7 +68,7 @@
             velocity: new THREE.Vector3(),
             velocityRandomness: .5,
             color: "#ff1493",
-            fixedColor: false,
+            particleColoring: 'rgb(tempo, loudness, ml)',
             colorRandomness: .2,
             turbulence: .5,
             lifetime: 6,
@@ -336,8 +342,7 @@
             const oldPoint = options.position;
             options.position = new THREE.Vector3();
 
-            if (!options.fixedColor)
-                options.color = new THREE.Color(outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
+            options.color = particleColoring[options.particleColoring](outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
             if (app_state.leapMotion.previousFinger.valid) {
                 for (var x = 0; x < spawnParticles; x++) {
                     options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
@@ -448,7 +453,7 @@
         particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3);
         particleFolder.add(app_state.particleOptions, "size", 1, 20);
         particleFolder.add(app_state.particleOptions, "sizeRandomness", 0, 25);
-        particleFolder.add(app_state.particleOptions, "fixedColor");
+        particleFolder.add(app_state.particleOptions, "particleColoring", Object.keys(particleColoring));
         particleFolder.addColor(app_state.particleOptions, "color");
         particleFolder.add(app_state.particleOptions, "colorRandomness", 0, 1);
         particleFolder.add(app_state.particleOptions, "lifetime", .1, 10);
