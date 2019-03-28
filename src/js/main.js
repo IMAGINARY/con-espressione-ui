@@ -492,6 +492,9 @@
         });
         const playButton = controlsFolder.add(app_state.controls, "play");
         const stopButton = controlsFolder.add(app_state.controls, "stop");
+        controlsFolder.add(outputParameters.impact, "value", 0.0, 1.0).name("machine learning").listen();
+        controlsFolder.add(outputParameters.loudness, "value", 0.0, 1.0).name("loudness").listen();
+        controlsFolder.add(outputParameters.tempo, "value", 0.0, 1.0).name("tempo").listen();
 
         const optionsFolder = datgui.addFolder('options');
 
