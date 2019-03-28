@@ -379,6 +379,12 @@
         particleScope.system.visible = app_state.objects.particles;
     }
 
+    function render() {
+        animate();
+        effect.render(scene, camera);
+        return controls.update();
+    }
+
     function initOverlayScene(element) {
         const container = document.createElement('div');
         container.classList.add('parameters');
@@ -560,7 +566,10 @@
         }
     }
 
-    window.controller = controller = new Leap.Controller;
+    window.controller = controller = new Leap.Controller({
+        background: true,
+        loopWhileDisconnected: true
+    });
 
     controller.on('frame', updatePosition);
 
@@ -571,12 +580,7 @@
         positionScale: 1.0,
         helper: false,
         offset: new THREE.Vector3(0, 0, 0),
-        renderFn: function () {
-            animate();
-            //renderer.render(scene, camera);
-            effect.render(scene, camera);
-            return controls.update();
-        },
+        renderFn: null /* dummy value, otherwise init fails */,
         materialOptions: {
             wireframe: false,
             transparent: false,
@@ -621,6 +625,7 @@
         .use('handEntry')
         .use('screenPosition')
         .use('riggedHand', riggedHandScope)
+        .on('frameEnd', render)
         .connect();
 }).call(this);
 
