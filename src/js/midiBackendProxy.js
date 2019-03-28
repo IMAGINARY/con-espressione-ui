@@ -76,6 +76,7 @@ class MidiBackendProxy {
     playComposition() {
         this._playing = true;
         this._sendControlChange(24, 127);
+        this._resendControls();
     }
 
     stopComposition() {
@@ -122,6 +123,12 @@ class MidiBackendProxy {
 
     _sendImpact() {
         this._sendControlChange(22, Math.ceil(this._impact * 127.0));
+    }
+
+    _resendControls() {
+        this._sendTempo();
+        this._sendLoudness();
+        this._sendImpact();
     }
 
     _reconnectInput() {
@@ -179,9 +186,6 @@ class MidiBackendProxy {
                 const midiOutput = WebMidi.getOutputByName(this._midiOutputName);
                 if (midiOutput) {
                     this._midiOutput = midiOutput;
-                    this._sendTempo();
-                    this._sendLoudness();
-                    this._sendImpact();
                     if (this._composition)
                         this.selectComposition(this._composition);
                     if (this._playing)
