@@ -410,7 +410,7 @@
                 outputParameters.impact.value = value / 127.0;
         });
 
-        midiBackend = new MidiBackendProxy();
+        midiBackend = new MidiBackendProxy({maxScaleFactor: 2.0});
         const mlKeyMap = {
             'loudness': 'mlLoudness',
             'dynamicSpread': 'mlDynamicSpread',

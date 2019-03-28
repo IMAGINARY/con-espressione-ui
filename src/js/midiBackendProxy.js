@@ -13,12 +13,16 @@ class MidiBackendProxy {
     _midiOutputName = "LeapControl";
     _midiOutput = false;
 
+    _maxScaleFactor = 2.0;
+
     constructor(options) {
         if (typeof options !== 'undefined') {
             if (typeof options.midiInputName !== 'undefined')
                 this._midiInputName = options.midiInputName;
             if (typeof options.midiOutputName !== 'undefined')
                 this._midiOutputName = options.midiOutputName;
+            if (typeof options.maxScaleFactor !== 'undefined')
+                this._maxScaleFactor = options.maxScaleFactor;
         }
         window.setTimeout(() => this._reconnectOutput(), 0);
         window.setTimeout(() => this._reconnectInput(), 0);
@@ -143,7 +147,7 @@ class MidiBackendProxy {
                         e => {
                             if (e.controller.number >= 110 && e.controller.number <= 114) {
                                 const key = midiInParameterMap[e.controller.number];
-                                const value = 0.5 + (((e.value / 127.0) - 0.5) / this._impact);
+                                const value = 0.5 + (((e.value / 127.0) - 0.5) / (this._impact * this._maxScaleFactor));
                                 const clampedValue = Math.max(0.0, Math.min(Number.isNaN(value) ? 0.5 : value, 1.0));
                                 for (let callback of this._parameterListeners)
                                     callback(key, clampedValue);
