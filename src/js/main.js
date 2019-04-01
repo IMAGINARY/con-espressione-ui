@@ -72,8 +72,8 @@
             colorRandomness: .2,
             turbulence: .5,
             lifetime: 6,
-            size: 7,
-            sizeRandomness: 1
+            size: 20,
+            sizeRandomness: 10
         },
         particleSpawnerOptions: {
             spawnRate: 15000,
