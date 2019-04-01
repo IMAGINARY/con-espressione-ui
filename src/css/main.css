@@ -8,65 +8,20 @@ DeepPink #ff1493 rgb(255, 20, 147) hsl(328, 100%, 54%)
 #e2f794 rgb(226, 247, 148) hsl(73, 86%, 77%)
 */
 
-
 body {
     overflow: hidden;
 }
 
 .parameters * {
-    --parameter-bar-height: 20px;
-    --parameter-bar-border-width: 2px;
+    --parameter-bar-height: 24px;
+    --parameter-bar-border-width: 0px;
     --parameter-border-color-default: #777777;
-    --parameter-text-color: DimGray;
-    --parameter-border-color: LightGray;
-}
-
-.parameters .loudness {
-    --parameter-color: hsl(345, 80%, 50%);
-    --parameter-second-color: hsl(345, 70%, 75%);
-    --parameter-third-color: hsl(345, 70%, 85%);
-}
-
-.parameters .tempo {
-    --parameter-color: hsl(128, 50%, 47%);
-    --parameter-second-color: hsl(128, 40%, 75%);
-    --parameter-third-color: hsl(128, 40%, 85%);
-}
-
-.parameters .ml {
-    --parameter-color: hsl(303, 86%, 57%);
-    --parameter-second-color: hsl(303, 76%, 75%);
-    --parameter-third-color: hsl(303, 76%, 85%);
-}
-
-.parameters .mlLoudness {
-    --parameter-color: hsl(186, 100%, 74%);
-    --parameter-second-color: hsl(186, 100%, 85%);
-    --parameter-third-color: hsl(186, 100%, 95%);
-}
-
-.parameters .mlDynamicSpread {
-    --parameter-color: hsl(281, 100%, 80%);
-    --parameter-second-color: hsl(281, 100%, 90%);
-    --parameter-third-color: hsl(281, 100%, 95%);
-}
-
-.parameters .mlTempo {
-    --parameter-color: hsl(148, 51%, 66%);
-    --parameter-second-color: hsl(148, 51%, 83%);
-    --parameter-third-color: hsl(148, 51%, 91.5%);
-}
-
-.parameters .mlMicroTiming {
-    --parameter-color: hsl(328, 100%, 54%);
-    --parameter-second-color: hsl(328, 100%, 64%);
-    --parameter-third-color: hsl(328, 100%, 78%);
-}
-
-.parameters .mlArticulation {
-    --parameter-color: hsl(73, 86%, 77%);
-    --parameter-second-color: hsl(73, 86%, 88.5%);
-    --parameter-third-color: hsl(73, 86%, 94.25%);
+    --parameter-text-color: hsl(0, 0%, 50%);
+    --parameter-border-color: hsl(0, 0%, 50%);
+    --parameter-color: hsl(0, 0%, 60%);
+    --parameter-second-color: hsl(0, 0%, 65%);
+    --parameter-third-color: hsl(0, 0%, 75%);
+    --parameter-marker-color: hsl(0, 0%, 50%);
 }
 
 .parameters {
@@ -76,18 +31,43 @@ body {
     bottom: 0px;
     left: 0px;
     display: grid;
-    grid-template-columns: min-content auto;
-    grid-row-gap: 3px;
-    padding: 0px 20px 10px 20px;
+    grid-template-columns: min-content auto min-content;
+    padding: 0px 10px 0px 10px;
+    background-color: hsl(0, 0%, 100%);
 }
 
 .parameters .label {
     font-family: sans-serif;
+    font-size: 15px;
     color: var(--parameter-text-color);
-    height: var(--parameter-bar-height);
-    padding-right: 7px;
-    text-align: right;
+    height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
     line-height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
+}
+
+.parameters .label.left {
+    padding-right: 8px;
+    text-align: left;
+}
+
+.parameters .label.right {
+    padding-left: 8px;
+    text-align: right;
+    visibility: hidden;
+}
+
+.parameters .barContainer {
+    padding: 2px 8px 2px 8px;
+    background-color: hsl(0, 0%, 92%);
+}
+
+.parameters :nth-child(10), .parameters :nth-child(11), .parameters :nth-child(12) {
+    padding-top: 8px !important;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.parameters :nth-last-child(1), .parameters :nth-last-child(2), .parameters :nth-last-child(3) {
+    padding-bottom: 8px !important;
 }
 
 .parameters .bar {
@@ -128,18 +108,18 @@ body {
 .marker::before {
     content: "";
     position: absolute;
-    border-color: var(--parameter-color) transparent var(--parameter-color) transparent;
+    border-color: var(--parameter-marker-color) transparent var(--parameter-marker-color) transparent;
     border-style: solid;
     border-width: 5px 5px 5px 5px;
     left: -5px;
-    height: 10px;
+    height: 14px;
     width: 2px;
 }
 
 .marker::after {
     content: "";
     position: absolute;
-    border-color: var(--parameter-color);
+    border-color: var(--parameter-marker-color);
     border-style: solid;
     border-width: 0px 2px 0px 2px;
     height: 20px;

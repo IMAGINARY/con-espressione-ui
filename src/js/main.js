@@ -186,7 +186,11 @@
 
         const label = document.createElement('div');
         label.innerText = parameterModel.id;
-        label.classList.add('label', parameterModel.id);
+        label.classList.add('label', 'left', parameterModel.id);
+
+        const labelInvisible = document.createElement('div');
+        labelInvisible.innerText = parameterModel.id;
+        labelInvisible.classList.add('label', 'right', parameterModel.id);
 
         const marker = document.createElement('div');
         marker.classList.add('marker', parameterModel.id);
@@ -198,10 +202,15 @@
         const minValue = document.createElement('div');
         minValue.classList.add('minValue', parameterModel.id);
 
+        const barContainer = document.createElement('div');
+        barContainer.classList.add('barContainer', parameterModel.id);
+
         const bar = document.createElement('div');
         bar.classList.add('bar', parameterModel.id);
         bar.appendChild(value);
         bar.appendChild(minValue);
+
+        barContainer.appendChild(bar);
 
         const maxDuration = animate ? 200 : 0;
         const animator = createAnimator(parameterModel.value, (v, animator) => {
@@ -221,7 +230,8 @@
         parameterModel.userData.animator = animator;
 
         parentDomElement.appendChild(label);
-        parentDomElement.appendChild(bar);
+        parentDomElement.appendChild(barContainer);
+        parentDomElement.appendChild(labelInvisible);
 
         return [label, bar];
     }
