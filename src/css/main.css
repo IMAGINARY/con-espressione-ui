@@ -39,6 +39,7 @@ body {
 .parameters .label {
     font-family: sans-serif;
     font-size: 15px;
+    white-space: nowrap;
     color: var(--parameter-text-color);
     height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
     line-height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
