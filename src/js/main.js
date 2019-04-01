@@ -5,6 +5,18 @@
 // https://github.com/leapmotion/leapjs-rigged-hand
 
 (function () {
+
+    const labels = {
+        'tempo': 'Tempo',
+        'loudness': 'Loudness',
+        'impact': 'Impact',
+        'mlTempo': 'Tempo',
+        'mlLoudness': 'Loudness',
+        'mlMicroTiming': 'Micro Timing',
+        'mlDynamicSpread': 'Dynamic Spread',
+        'mlArticulation': 'Articulation',
+    };
+
     const outputParameters = {
         tempo: createParameterModel('tempo', 0.5, {animate: false}),
         loudness: createParameterModel('loudness', 0.5, {animate: false}),
@@ -185,11 +197,11 @@
     function createParameterView(parentDomElement, parameterModel, rangeCallback, animate) {
 
         const label = document.createElement('div');
-        label.innerText = parameterModel.id;
+        label.innerText = labels[parameterModel.id];
         label.classList.add('label', 'left', parameterModel.id);
 
         const labelInvisible = document.createElement('div');
-        labelInvisible.innerText = parameterModel.id;
+        labelInvisible.innerText = labels[parameterModel.id];
         labelInvisible.classList.add('label', 'right', parameterModel.id);
 
         const marker = document.createElement('div');
