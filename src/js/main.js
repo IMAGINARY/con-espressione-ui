@@ -559,6 +559,12 @@
         else
             debugTools.forEach(e => e.classList.add("hidden"));
     };
+    {
+        const debugToolsParam = new URLSearchParams(window.location.search).get('debugTools');
+        const debugToolVisible = debugToolsParam === "" || String(debugToolsParam).toLowerCase() === "true";
+        setDebugToolsVisible(debugToolVisible);
+    }
+
     let prevHand = Leap.Hand.Invalid;
     let prevFinger = Leap.Finger.Invalid;
 
