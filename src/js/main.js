@@ -145,8 +145,7 @@
             outputParameters: false,
         },
         controls: {
-            mlMIDI: true,
-            mlLeapMotion: false,
+            ml: "midi",
             camera: false,
             composition: 0,
             play: function () {
@@ -154,6 +153,9 @@
             },
             stop: function () {
                 midiBackend.stopComposition();
+            },
+            hideDebugTools: function () {
+                setDebugToolsVisible(false);
             },
         },
         playback: {
@@ -421,7 +423,7 @@
         // TODO: make robust aka reconnect
         const midiController = new MidiController("SOLO Control");
         midiController.addListener(value => {
-            if (app_state.controls.mlMIDI)
+            if (app_state.controls.ml === "midi")
                 outputParameters.impact.value = value / 127.0;
         });
 
@@ -452,36 +454,7 @@
         datgui = new dat.GUI({width: 400});
         datgui.domElement.classList.add("debugTool");
 
-        const particleFolder = datgui.addFolder('particles');
-
-        particleFolder.add(app_state.particleOptions, "velocityRandomness", 0, 3);
-        particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3);
-        particleFolder.add(app_state.particleOptions, "size", 1, 20);
-        particleFolder.add(app_state.particleOptions, "sizeRandomness", 0, 25);
-        particleFolder.add(app_state.particleOptions, "particleColoring", Object.keys(particleColoring));
-        particleFolder.addColor(app_state.particleOptions, "color");
-        particleFolder.add(app_state.particleOptions, "colorRandomness", 0, 1);
-        particleFolder.add(app_state.particleOptions, "lifetime", .1, 10);
-        particleFolder.add(app_state.particleOptions, "turbulence", 0, 1);
-
-        particleFolder.add(app_state.particleSpawnerOptions, "spawnRate", 10, 30000);
-        particleFolder.add(app_state.particleSpawnerOptions, "timeScale", -1, 1);
-
-        const leapMotionFolder = datgui.addFolder('leap motion');
-
-        leapMotionFolder.add(app_state.leapMotion, "boxWidth", 0, 1000);
-        leapMotionFolder.add(app_state.leapMotion, "boxHeight", 0, 1000);
-        leapMotionFolder.add(app_state.leapMotion, "boxDepth", 0, 1000);
-        leapMotionFolder.add(app_state.leapMotion, "boxVerticalOffset", 0, 1000);
-        leapMotionFolder.add(app_state.leapMotion, "clamp");
-
-        const objectsFolder = datgui.addFolder('objects');
-
-        objectsFolder.add(app_state.objects, "particles");
-        objectsFolder.add(app_state.objects, "box");
-        objectsFolder.add(app_state.objects, "outputParameters");
-
-        const controlsFolder = datgui.addFolder('controls');
+        const controlsFolder = datgui.addFolder('Playback controls');
         controlsFolder.open();
 
         const compositions = {
@@ -491,23 +464,50 @@
             "3: beethoven_fuer_elise": 3,
         };
 
-        controlsFolder.add(app_state.controls, "mlMIDI");
-        controlsFolder.add(app_state.controls, "mlLeapMotion");
-        controlsFolder.add(app_state.controls, "camera");
-        const compositionSelector = controlsFolder.add(app_state.controls, "composition", compositions);
+        const compositionSelector = controlsFolder.add(app_state.controls, "composition", compositions).name("Select composition");
         compositionSelector.onChange(() => {
             midiBackend.selectComposition(app_state.controls.composition);
         });
-        const playButton = controlsFolder.add(app_state.controls, "play");
-        const stopButton = controlsFolder.add(app_state.controls, "stop");
-        controlsFolder.add(outputParameters.impact, "value", 0.0, 1.0).name("machine learning").listen();
-        controlsFolder.add(outputParameters.loudness, "value", 0.0, 1.0).name("loudness").listen();
-        controlsFolder.add(outputParameters.tempo, "value", 0.0, 1.0).name("tempo").listen();
-
-        const optionsFolder = datgui.addFolder('options');
-
-        const useMIDIJS = optionsFolder.add(app_state.playback, "enabled");
+        const useMIDIJS = controlsFolder.add(app_state.playback, "enabled").name("Enable built-in synthesizer");
         useMIDIJS.onChange(() => midiPlayer.muted = !app_state.playback.enabled);
+        controlsFolder.add(app_state.controls, "play").name("Play from start");
+        controlsFolder.add(app_state.controls, "stop").name("Stop playing");
+
+        const userInputFolder = datgui.addFolder('User input');
+        Object.values(outputParameters).forEach(p => userInputFolder.add(p, "value", 0.0, 1.0).name(labels[p.id]).listen());
+        userInputFolder.add(app_state.controls, "ml", ["midi", "leap motion z"]).name("Control ML impact via");
+        userInputFolder.add(app_state.objects, "outputParameters").name("Show in UI");
+
+        const machineOutputFolder = datgui.addFolder('Machine output');
+        Object.values(inputParameters).forEach(p => machineOutputFolder.add(p, "value", 0.0, 1.0).name(labels[p.id]).listen());
+
+        const particleFolder = datgui.addFolder('Particles');
+
+        particleFolder.add(app_state.particleOptions, "size", 1, 20).name("Size");
+        particleFolder.add(app_state.particleOptions, "sizeRandomness", 0, 25).name("Randomness of size");
+        particleFolder.add(app_state.particleOptions, "particleColoring", Object.keys(particleColoring)).name("Coloring of particles");
+        particleFolder.addColor(app_state.particleOptions, "color").name("Color");
+        particleFolder.add(app_state.particleOptions, "colorRandomness", 0, 1).name("Randomness of color");
+        particleFolder.add(app_state.particleOptions, "positionRandomness", 0, 3).name("Randomness of position");
+        particleFolder.add(app_state.particleOptions, "velocityRandomness", 0, 3).name("Randomness of velocity");
+        particleFolder.add(app_state.particleOptions, "lifetime", .1, 10).name("Lifetime");
+        particleFolder.add(app_state.particleOptions, "turbulence", 0, 1).name("Turbulence");
+        particleFolder.add(app_state.particleSpawnerOptions, "spawnRate", 10, 30000).name("Spawn rate");
+        particleFolder.add(app_state.particleSpawnerOptions, "timeScale", 0, 10).name("Time scale-factor");
+        particleFolder.add(app_state.objects, "particles").name("Visualize particles");
+
+        const leapMotionFolder = datgui.addFolder('Leap Motion interaction box');
+
+        leapMotionFolder.add(app_state.leapMotion, "boxWidth", 0, 1000).name("Width");
+        leapMotionFolder.add(app_state.leapMotion, "boxHeight", 0, 1000).name("Height");
+        leapMotionFolder.add(app_state.leapMotion, "boxDepth", 0, 1000).name("Depth");
+        leapMotionFolder.add(app_state.leapMotion, "boxVerticalOffset", 0, 1000).name("Vertical offset");
+        leapMotionFolder.add(app_state.leapMotion, "clamp").name("Clamp to box");
+        leapMotionFolder.add(app_state.objects, "box").name("Visualize box");
+
+        const miscFolder = datgui.addFolder('Miscellaneous');
+        miscFolder.add(app_state.controls, "camera").name("Camera control");
+        miscFolder.add(app_state.controls, "hideDebugTools").name("Hide debug tools");
     }
 
     let midiPlayer;
@@ -572,7 +572,7 @@
                     const normalizedTipPosition = leapMotion.normalizePosition(tipPosition);
                     outputParameters.tempo.value = normalizedTipPosition.x;
                     outputParameters.loudness.value = normalizedTipPosition.y;
-                    if (app_state.controls.mlLeapMotion)
+                    if (app_state.controls.ml === "leap motion z")
                         outputParameters.impact.value = 1.0 - normalizedTipPosition.z;
                     leapMotion.tipPosition.copy(tipPosition);
                 }
