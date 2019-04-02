@@ -32,7 +32,6 @@ body {
     left: 0px;
     display: grid;
     grid-template-columns: min-content auto min-content;
-    padding: 0px 10px 0px 10px;
     background-color: hsl(0, 0%, 100%);
 }
 
@@ -40,18 +39,19 @@ body {
     font-family: sans-serif;
     font-size: 15px;
     white-space: nowrap;
+    padding: 0px 25px 0px 25px;
     color: var(--parameter-text-color);
     height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
     line-height: calc(var(--parameter-bar-height) + 2 * var(--parameter-bar-border-width));
 }
 
 .parameters .label.left {
-    padding-right: 8px;
+    padding-right: 30px;
     text-align: left;
 }
 
 .parameters .label.right {
-    padding-left: 8px;
+    padding-left: 30px;
     text-align: right;
     visibility: hidden;
 }
