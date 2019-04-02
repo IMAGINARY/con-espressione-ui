@@ -75,7 +75,12 @@
 
     const app_state = {
         particleOptions: {
-            position: new THREE.Vector3(),
+            _position: null,
+            get position() {
+                if (this._position === null)
+                    this._position = app_state.leapMotion.tipPosition.clone();
+                return this._position;
+            },
             positionRandomness: .3,
             velocity: new THREE.Vector3(),
             velocityRandomness: .5,
@@ -98,6 +103,15 @@
             finger: Leap.Finger.Invalid,
             previousHand: Leap.Hand.Invalid,
             previousFinger: Leap.Finger.Invalid,
+            _tipPosition: null,
+            get tipPosition() {
+                if (this._tipPosition === null) {
+                    const {tempo, loudness, impact} = outputParameters;
+                    const normalizedTipPosition = new THREE.Vector3(tempo.value, loudness.value, impact.value);
+                    this._tipPosition = app_state.leapMotion.unnormalizePosition(normalizedTipPosition);
+                }
+                return this._tipPosition;
+            },
             boxWidth: 300,
             boxHeight: 300,
             boxDepth: 200,
@@ -126,7 +140,6 @@
             }
         },
         objects: {
-            curve: false,
             particles: true,
             box: false,
             label: false,
@@ -259,13 +272,6 @@
     window.datgui = null;
     window.particleScope = {system: null, clock: new THREE.Clock(), tick: 0};
 
-    let msLastPoint = -1;
-    const MS_BETWEEN_POINTS = 100;
-    const NUM_POINTS = 20;
-    const tracePoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)];
-    const traceGeometry = new THREE.BufferGeometry().setFromPoints(tracePoints);
-    let traceCurve = null;
-
     function createBoxLineSegmentsGeometry() {
         const lineSegments = new THREE.Geometry();
         lineSegments.vertices.push(
@@ -315,10 +321,6 @@
         hands.position.set(0.0, 130.0, 0.0);
         scene.add(hands);
 
-        traceCurve = new THREE.Line(traceGeometry, new THREE.LineBasicMaterial({color: 0xff0000}));
-        traceCurve.frustumCulled = false;
-        hands.add(traceCurve);
-
         interactionBox = new THREE.LineSegments(createBoxLineSegmentsGeometry(), new THREE.LineBasicMaterial({color: 0x999999}));
         hands.add(interactionBox);
 
@@ -342,15 +344,9 @@
             return effect.render(scene, camera);
         }, false);
         return effect.render(scene, camera);
-    };
-
-    function computeInBetweenTracePoints(tracePoints) {
-        const curve = new THREE.CatmullRomCurve3(tracePoints);
-        const inBetweenPoints = curve.getPoints(5000);
-        return inBetweenPoints;
     }
 
-    function updateParticles(newPoint) {
+    function updateParticles() {
         const options = Object.assign({}, app_state.particleOptions);
         const spawnerOptions = app_state.particleSpawnerOptions;
         const delta = particleScope.clock.getDelta() * spawnerOptions.timeScale;
@@ -359,25 +355,16 @@
 
         if (particleScope.tick < 0) particleScope.tick = 0;
 
-        if (app_state.leapMotion.finger.valid) {
-            const spawnParticles = spawnerOptions.spawnRate * delta;
-            const oldPoint = options.position;
-            options.position = new THREE.Vector3();
+        const spawnParticles = spawnerOptions.spawnRate * delta;
+        const oldPoint = options.position.clone();
+        const newPoint = app_state.leapMotion.tipPosition;
 
-            options.color = particleColoring[options.particleColoring](outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
-            if (app_state.leapMotion.previousFinger.valid) {
-                for (var x = 0; x < spawnParticles; x++) {
-                    options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
-                    particleScope.system.spawnParticle(options);
-                }
-            } else {
-                options.position.copy(newPoint);
-                for (var x = 0; x < spawnParticles; x++) {
-                    particleScope.system.spawnParticle(options);
-                }
-            }
-            app_state.particleOptions.position = options.position;
+        options.color = particleColoring[options.particleColoring](outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
+        for (let x = 0; x < spawnParticles; x++) {
+            options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
+            particleScope.system.spawnParticle(options);
         }
+        app_state.particleOptions.position.copy(options.position);
 
         particleScope.system.update(particleScope.tick);
     }
@@ -398,11 +385,7 @@
         interactionBox.scale.subVectors(app_state.leapMotion.max, app_state.leapMotion.min);
         interactionBox.visible = app_state.objects.box;
 
-        traceGeometry.setFromPoints(computeInBetweenTracePoints(tracePoints));
-        traceGeometry.verticesNeedUpdate = true;
-        traceCurve.visible = app_state.objects.curve;
-
-        updateParticles(tracePoints[0]);
+        updateParticles();
         particleScope.system.visible = app_state.objects.particles;
     }
 
@@ -495,7 +478,6 @@
 
         const objectsFolder = datgui.addFolder('objects');
 
-        objectsFolder.add(app_state.objects, "curve");
         objectsFolder.add(app_state.objects, "particles");
         objectsFolder.add(app_state.objects, "box");
         objectsFolder.add(app_state.objects, "label");
@@ -596,16 +578,7 @@
                     outputParameters.loudness.value = normalizedTipPosition.y;
                     if (app_state.controls.mlLeapMotion)
                         outputParameters.impact.value = 1.0 - normalizedTipPosition.z;
-                    const msCurrentPoint = frame.timestamp / 1000;
-                    const currentPoint = tipPosition.clone();
-                    if (msLastPoint + MS_BETWEEN_POINTS <= msCurrentPoint) {
-                        tracePoints.unshift(currentPoint);
-                        msLastPoint = msCurrentPoint;
-                    } else {
-                        tracePoints[0].lerp(currentPoint, 0.5);
-                    }
-                    while (tracePoints.length > NUM_POINTS)
-                        tracePoints.pop();
+                    app_state.leapMotion.tipPosition.copy(tipPosition);
                 }
             }
         }
