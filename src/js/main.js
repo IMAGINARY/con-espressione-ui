@@ -122,7 +122,7 @@
                     .divide(new THREE.Vector3().subVectors(this.max, this.min));
             },
             unnormalizePosition: function (point) {
-                const result = point.clone().multiply(this.size()).addVector(this.min());
+                return point.clone().multiply(this.size).add(this.min);
             }
         },
         objects: {
