@@ -142,7 +142,6 @@
         objects: {
             particles: true,
             box: false,
-            label: false,
             outputParameters: false,
         },
         controls: {
@@ -480,7 +479,6 @@
 
         objectsFolder.add(app_state.objects, "particles");
         objectsFolder.add(app_state.objects, "box");
-        objectsFolder.add(app_state.objects, "label");
         objectsFolder.add(app_state.objects, "outputParameters");
 
         const controlsFolder = datgui.addFolder('controls');
@@ -615,13 +613,6 @@
         dotsMode: false,
         stats: stats,
         camera: camera,
-        boneLabels: function (boneMesh, leapHand) {
-            const fingerName = `Finger_${app_state.leapMotion.finger.type}3`;
-            if (app_state.objects.label && boneMesh.name === fingerName && leapHand.id == app_state.leapMotion.hand.id) {
-                return ['tempo', 'loudness', 'impact']
-                    .map(a => `${a}: ${(outputParameters[a].value).toFixed(2)}`).join(', ');
-            }
-        },
         boneColors: function (boneMesh, leapHand) {
             const fingerNamePrefix = `Finger_${app_state.leapMotion.finger.type}`;
             if ((boneMesh.name.indexOf(fingerNamePrefix) === 0) && leapHand.id == app_state.leapMotion.hand.id) {
