@@ -137,3 +137,7 @@ body {
 .dg.main {
     margin-right: 0px !important;
 }
+
+.hidden {
+    display: none !important;
+}

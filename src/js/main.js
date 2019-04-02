@@ -468,6 +468,7 @@
 
     function initDatGui() {
         datgui = new dat.GUI({width: 400});
+        datgui.domElement.classList.add("debugTool");
 
         const particleFolder = datgui.addFolder('particles');
 
@@ -548,8 +549,16 @@
 
     stats = new Stats();
     stats.domElement.id = 'stats';
+    stats.domElement.classList.add("debugTool");
     document.body.appendChild(stats.domElement);
 
+    window.setDebugToolsVisible = function (visible) {
+        const debugTools = document.querySelectorAll(".debugTool");
+        if (visible)
+            debugTools.forEach(e => e.classList.remove("hidden"));
+        else
+            debugTools.forEach(e => e.classList.add("hidden"));
+    };
     let prevHand = Leap.Hand.Invalid;
     let prevFinger = Leap.Finger.Invalid;
 
