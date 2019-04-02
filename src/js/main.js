@@ -112,6 +112,7 @@
                 }
                 return this._tipPosition;
             },
+            lastFrameTime: 0,
             boxWidth: 300,
             boxHeight: 300,
             boxDepth: 200,
@@ -137,6 +138,17 @@
             },
             unnormalizePosition: function (point) {
                 return point.clone().multiply(this.size).add(this.min);
+            }
+        },
+        idleOptions: {
+            timeout: 60 * 1000,
+            interpolationDuration: 100 * 1000,
+            position: t => {
+                const tf = 2.0 * Math.PI / 10000;
+                const rtf = 10 * tf;
+                const r = 0.4 + 0.02 * Math.sin(rtf * t);
+                const normalizedPosition = new THREE.Vector3(0.5 + r * Math.cos(tf * t), 0.5 + r * Math.sin(tf * t), 0.5);
+                return app_state.leapMotion.unnormalizePosition(normalizedPosition);
             }
         },
         objects: {
@@ -348,24 +360,29 @@
     }
 
     function updateParticles() {
-        const options = Object.assign({}, app_state.particleOptions);
-        const spawnerOptions = app_state.particleSpawnerOptions;
-        const delta = particleScope.clock.getDelta() * spawnerOptions.timeScale;
+        const {particleOptions, particleSpawnerOptions, leapMotion, idleOptions} = app_state;
+        const {tempo, loudness, impact} = outputParameters;
+        const options = Object.assign({}, particleOptions);
+        const delta = particleScope.clock.getDelta() * particleSpawnerOptions.timeScale;
 
         particleScope.tick += delta;
 
         if (particleScope.tick < 0) particleScope.tick = 0;
+        const spawnParticles = particleSpawnerOptions.spawnRate * delta;
 
-        const spawnParticles = spawnerOptions.spawnRate * delta;
+        const idleDuration = performance.now() - leapMotion.lastFrameTime - idleOptions.timeout;
+        const idlePosition = idleOptions.position(idleDuration);
+
         const oldPoint = options.position.clone();
-        const newPoint = app_state.leapMotion.tipPosition;
+        const newPoint = leapMotion.tipPosition;
+        newPoint.lerp(idlePosition, Math.max(0.0, Math.min(idleDuration / idleOptions.interpolationDuration, 1.0)));
 
-        options.color = particleColoring[options.particleColoring](outputParameters.tempo.value, outputParameters.loudness.value, outputParameters.impact.value);
+        options.color = particleColoring[options.particleColoring](tempo.value, loudness.value, impact.value);
         for (let x = 0; x < spawnParticles; x++) {
             options.position.lerpVectors(oldPoint, newPoint, x / spawnParticles);
             particleScope.system.spawnParticle(options);
         }
-        app_state.particleOptions.position.copy(options.position);
+        particleOptions.position.copy(options.position);
 
         particleScope.system.update(particleScope.tick);
     }
@@ -505,6 +522,10 @@
         leapMotionFolder.add(app_state.leapMotion, "clamp").name("Clamp to box");
         leapMotionFolder.add(app_state.objects, "box").name("Visualize box");
 
+        const idleFolder = datgui.addFolder('Idle animation');
+        idleFolder.add(app_state.idleOptions, "timeout", 0, 500 * 1000).name("Start after (ms");
+        idleFolder.add(app_state.idleOptions, "interpolationDuration", 0, 500 * 1000).name("Interpolate for (ms)");
+
         const miscFolder = datgui.addFolder('Miscellaneous');
         miscFolder.add(app_state.controls, "camera").name("Camera control");
         miscFolder.add(app_state.controls, "hideDebugTools").name("Hide debug tools");
@@ -556,6 +577,7 @@
             leapMotion.hand = frame.hands[i];
         }
         if (leapMotion.hand.valid) {
+            app_state.leapMotion.lastFrameTime = performance.now();
             if (leapMotion.hand.fingers.length > 0) {
                 const preference = ['indexFinger', 'middleFinger', 'thumb', 'ringFinger', 'pinky'];
                 for (let fingerName of preference) {
