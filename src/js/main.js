@@ -547,38 +547,36 @@
         setDebugToolsVisible(debugToolVisible);
     }
 
-    let prevHand = Leap.Hand.Invalid;
-    let prevFinger = Leap.Finger.Invalid;
-
     function updatePosition(frame) {
-        app_state.leapMotion.previousHand = app_state.leapMotion.hand;
-        app_state.leapMotion.previousFinger = app_state.leapMotion.finger;
+        const {leapMotion} = app_state;
+        leapMotion.previousHand = leapMotion.hand;
+        leapMotion.previousFinger = leapMotion.finger;
 
-        app_state.leapMotion.hand = frame.hand(prevHand.id);
-        app_state.leapMotion.finger = Leap.Finger.Invalid;
-        for (let i = 0; i < frame.hands.length && !app_state.leapMotion.hand.valid; ++i) {
-            app_state.leapMotion.hand = frame.hands[i];
+        leapMotion.hand = leapMotion.previousHand.valid ? frame.hand(leapMotion.previousHand.id) : Leap.Hand.Invalid;
+        leapMotion.finger = Leap.Finger.Invalid;
+        for (let i = 0; i < frame.hands.length && !leapMotion.hand.valid; ++i) {
+            leapMotion.hand = frame.hands[i];
         }
-        if (app_state.leapMotion.hand.valid) {
-            if (app_state.leapMotion.hand.fingers.length > 0) {
+        if (leapMotion.hand.valid) {
+            if (leapMotion.hand.fingers.length > 0) {
                 const preference = ['indexFinger', 'middleFinger', 'thumb', 'ringFinger', 'pinky'];
                 for (let fingerName of preference) {
-                    if (app_state.leapMotion.hand[fingerName].valid) {
-                        app_state.leapMotion.finger = app_state.leapMotion.hand[fingerName];
+                    if (leapMotion.hand[fingerName].valid) {
+                        leapMotion.finger = leapMotion.hand[fingerName];
                         break;
                     }
                 }
-                if (app_state.leapMotion.finger.valid) {
-                    const tipPosition = new THREE.Vector3().fromArray(app_state.leapMotion.finger.tipPosition);
-                    tipPosition.addScaledVector(new THREE.Vector3().fromArray(app_state.leapMotion.finger.direction), app_state.leapMotion.finger.length / 5.0);
-                    if (app_state.leapMotion.clamp)
-                        tipPosition.copy(app_state.leapMotion.clampPosition(tipPosition));
-                    const normalizedTipPosition = app_state.leapMotion.normalizePosition(tipPosition);
+                if (leapMotion.finger.valid) {
+                    const tipPosition = new THREE.Vector3().fromArray(leapMotion.finger.tipPosition);
+                    tipPosition.addScaledVector(new THREE.Vector3().fromArray(leapMotion.finger.direction), leapMotion.finger.length / 5.0);
+                    if (leapMotion.clamp)
+                        tipPosition.copy(leapMotion.clampPosition(tipPosition));
+                    const normalizedTipPosition = leapMotion.normalizePosition(tipPosition);
                     outputParameters.tempo.value = normalizedTipPosition.x;
                     outputParameters.loudness.value = normalizedTipPosition.y;
                     if (app_state.controls.mlLeapMotion)
                         outputParameters.impact.value = 1.0 - normalizedTipPosition.z;
-                    app_state.leapMotion.tipPosition.copy(tipPosition);
+                    leapMotion.tipPosition.copy(tipPosition);
                 }
             }
         }
