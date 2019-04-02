@@ -12,7 +12,7 @@
         'impact': 'Impact',
         'mlTempo': 'Tempo',
         'mlLoudness': 'Loudness',
-        'mlMicroTiming': 'Micro Timing',
+        'mlMicroTiming': 'Microtiming',
         'mlDynamicSpread': 'Dynamic Spread',
         'mlArticulation': 'Articulation',
     };
