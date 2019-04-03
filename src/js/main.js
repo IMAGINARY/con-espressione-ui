@@ -6,6 +6,21 @@
 
 (function () {
 
+    const config = (function () {
+        const parseBoolean = s => s === '' || s.toLowerCase() === 'true';
+        const searchParams = new URLSearchParams(window.location.search);
+        const keys = {
+            'showDebugTools': {parseFn: parseBoolean, defaultValue: false},
+        };
+        const parseWithDefault = key => searchParams.has(key) ? keys[key].parseFn(searchParams.get(key)) : keys[key].defaultValue;
+        const config = Object.keys(keys)
+            .reduce((acc, key) => {
+                acc[key] = parseWithDefault(key);
+                return acc;
+            }, {});
+        return Object.freeze(config);
+    })();
+
     const labels = {
         'tempo': 'Tempo',
         'loudness': 'Loudness',
@@ -560,11 +575,7 @@
         else
             debugTools.forEach(e => e.classList.add("hidden"));
     };
-    {
-        const debugToolsParam = new URLSearchParams(window.location.search).get('showDebugTools');
-        const debugToolVisible = debugToolsParam === "" || String(debugToolsParam).toLowerCase() === "true";
-        setDebugToolsVisible(debugToolVisible);
-    }
+    setDebugToolsVisible(config.showDebugTools);
 
     function updatePosition(frame) {
         const {leapMotion} = app_state;
