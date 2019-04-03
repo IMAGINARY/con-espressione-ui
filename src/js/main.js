@@ -8,8 +8,12 @@
 
     const config = (function () {
         const parseBoolean = s => s === '' || s.toLowerCase() === 'true';
+        const parseString = s => s;
         const searchParams = new URLSearchParams(window.location.search);
         const keys = {
+            'backendMidiInput': {parseFn: parseString, defaultValue: 'LeapControl'},
+            'backendMidiOutput': {parseFn: parseString, defaultValue: 'LeapControl'},
+            'mlImpactMidiInput': {parseFn: parseString, defaultValue: 'SOLO Control'},
             'enableSynth': {parseFn: parseBoolean, defaultValue: true},
             'showDebugTools': {parseFn: parseBoolean, defaultValue: false},
         };
@@ -454,13 +458,17 @@
         console.log(WebMidi.outputs);
 
         // TODO: make robust aka reconnect
-        const midiController = new MidiController("SOLO Control");
+        const midiController = new MidiController(config.mlImpactMidiInput);
         midiController.addListener(value => {
             if (app_state.controls.ml === "midi")
                 outputParameters.impact.value = value / 127.0;
         });
 
-        midiBackend = new MidiBackendProxy({maxScaleFactor: 2.0});
+        midiBackend = new MidiBackendProxy({
+            midiInputName: config.backendMidiInput,
+            midiOutputName: config.backendMidiOutput,
+            maxScaleFactor: 2.0
+        });
         const mlKeyMap = {
             'loudness': 'mlLoudness',
             'dynamicSpread': 'mlDynamicSpread',
