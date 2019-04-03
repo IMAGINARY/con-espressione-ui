@@ -561,7 +561,7 @@
             debugTools.forEach(e => e.classList.add("hidden"));
     };
     {
-        const debugToolsParam = new URLSearchParams(window.location.search).get('debugTools');
+        const debugToolsParam = new URLSearchParams(window.location.search).get('showDebugTools');
         const debugToolVisible = debugToolsParam === "" || String(debugToolsParam).toLowerCase() === "true";
         setDebugToolsVisible(debugToolVisible);
     }
