@@ -1,9 +1,3 @@
-// TODO: LeapMotion, MIDI slider, mouse, touch input
-// TODO: Debug mode that shows LeapMotion interaction box and fps stats
-
-// trail: http://www.subimago.com/?action=viewArticle&articleId=39
-// https://github.com/leapmotion/leapjs-rigged-hand
-
 (function () {
 
     const config = (function () {
@@ -457,7 +451,6 @@
         console.log(WebMidi.inputs);
         console.log(WebMidi.outputs);
 
-        // TODO: make robust aka reconnect
         const midiController = new MidiController(config.mlImpactMidiInput);
         midiController.addListener(value => {
             if (app_state.controls.ml === "midi")
