@@ -10,6 +10,7 @@
         const parseBoolean = s => s === '' || s.toLowerCase() === 'true';
         const searchParams = new URLSearchParams(window.location.search);
         const keys = {
+            'enableSynth': {parseFn: parseBoolean, defaultValue: true},
             'showDebugTools': {parseFn: parseBoolean, defaultValue: false},
         };
         const parseWithDefault = key => searchParams.has(key) ? keys[key].parseFn(searchParams.get(key)) : keys[key].defaultValue;
@@ -186,7 +187,7 @@
             },
         },
         playback: {
-            enabled: true,
+            enabled: config.enableSynth,
         }
     }
 
@@ -552,7 +553,7 @@
         initOverlayScene(document.body);
         initDatGui();
 
-        midiPlayer = new MidiPlayer();
+        midiPlayer = new MidiPlayer(() => midiPlayer.muted = !config.enableSynth);
         WebMidi.enable(function (err) {
             if (err) {
                 console.log("WebMidi could not be enabled.", err);
