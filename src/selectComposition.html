@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select composition</title>
+
+    <script src="../lib/webmidi.js/2.3.2/webmidi.js"></script>
+
+    <script src="js/configParser.js"></script>
+    <script src="js/midiBackendProxy.js"></script>
+    <script>
+        function playComposition(midiBackend, which) {
+            midiBackend.removePlaybackListener(onPlaybackEvent);
+            midiBackend.selectComposition(which);
+            midiBackend.playComposition();
+            /***
+             * The following delay is kind of a hack, because we need to wait for the backend to send the
+             * endOfComposition event for the previous song (which might also never happen if there wasn't any song
+             * playing at the moment). So for the unlikely case that a song if shorter than 2s, the hack might just
+             * fail and the endOfComposition callback will never be triggered for the selected composition.
+             */
+            window.setTimeout(() => midiBackend.addPlaybackListener(onPlaybackEvent), 2000);
+        }
+
+        function onPlaybackEvent(type) {
+            if (type === "endOfComposition") {
+                try {
+                    window.IMAGINARY.AppLauncher.closeApp();
+                } catch (err) {
+                    console.log("Playback ended, but no action will be taken since we are not running inside AppLauncher.");
+                }
+            }
+        }
+
+        WebMidi.enable(function (err) {
+            if (err) {
+                console.log("WebMidi could not be enabled.", err);
+            } else {
+                console.log("WebMidi enabled!");
+                const midiBackend = new MidiBackendProxy({
+                    midiInputName: config.backendMidiInput,
+                    midiOutputName: config.backendMidiOutput
+                });
+                window.midiBackend = midiBackend;
+                window.setTimeout(() => playComposition(midiBackend, config.composition), 0);
+            }
+        });
+    </script>
+</head>
+<body>
+<script>
+    document.body.innerText = "Selected composition: " + config.composition;
+</script>
+</body>
+</html>
