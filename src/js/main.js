@@ -152,7 +152,7 @@
         controls: {
             ml: "midi",
             camera: false,
-            composition: 0,
+            composition: config.composition,
             play: function () {
                 midiBackend.playComposition();
             },
@@ -458,9 +458,12 @@
         outputParameters.loudness.addValueListener(l => midiBackend.loudness = l);
         outputParameters.impact.addValueListener(l => midiBackend.impact = l);
 
-        // stop playing and play from the beginning
-        midiBackend.stopComposition();
-        midiBackend.playComposition();
+        // stop playing and play the default composition from the beginning
+        setTimeout(() => {
+            midiBackend.stopComposition();
+            midiBackend.selectComposition(config.composition);
+            midiBackend.playComposition();
+        }, 0);
     };
 
     function initDatGui() {
