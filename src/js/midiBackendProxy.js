@@ -203,7 +203,6 @@ class MidiBackendProxy {
 
     _sendSongSelect(value) {
         if (this._midiOutput) {
-            console.log(value);
             this._midiOutput.sendSongSelect(value);
         }
     }
