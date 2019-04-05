@@ -4,8 +4,8 @@ const config = (function () {
     const parseString = s => s;
     const searchParams = new URLSearchParams(window.location.search);
     const keys = {
-        'backendMidiInput': {parseFn: parseString, defaultValue: 'expressiveness-backend'},
-        'backendMidiOutput': {parseFn: parseString, defaultValue: 'expressiveness-backend'},
+        'backendMidiInput': {parseFn: parseString, defaultValue: 'con-espressione'},
+        'backendMidiOutput': {parseFn: parseString, defaultValue: 'con-espressione'},
         'mlImpactMidiInput': {parseFn: parseString, defaultValue: 'SOLO Control'},
         'composition': {parseFn: parseInteger, defaultValue: 0},
         'enableSynth': {parseFn: parseBoolean, defaultValue: true},
