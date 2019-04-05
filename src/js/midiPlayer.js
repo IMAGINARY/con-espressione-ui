@@ -6,7 +6,7 @@ class MidiPlayer {
 
     constructor(onsuccess) {
         MIDI.loadPlugin({
-            soundfontUrl: "../../soundfont/FatBoy/",
+            soundfontUrl: "../soundfont/FatBoy/",
             instrument: "acoustic_grand_piano",
             onsuccess: () => {
                 MIDI.setVolume(0, 127);

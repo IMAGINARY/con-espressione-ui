@@ -333,8 +333,8 @@
         const textureLoader = new THREE.TextureLoader();
         particleScope.system = new THREE.GPUParticleSystem({
             maxParticles: 250000,
-            particleNoiseTex: textureLoader.load('../../lib/three.js/98/textures/perlin-512.jpg'),
-            particleSpriteTex: textureLoader.load('../../lib/three.js/98/textures/particle2.png'),
+            particleNoiseTex: textureLoader.load('../lib/three.js/98/textures/perlin-512.jpg'),
+            particleSpriteTex: textureLoader.load('../lib/three.js/98/textures/particle2.png'),
         });
         particleScope.system.particleShaderMat.userData.outlineParameters = {visible: false};
         hands.add(particleScope.system);
