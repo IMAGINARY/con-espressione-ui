@@ -25,7 +25,12 @@
         function onPlaybackEvent(type) {
             if (type === "endOfComposition") {
                 try {
-                    window.IMAGINARY.AppLauncher.closeApp();
+                    /***
+                     * If we are calling closeApp() directly from the context of the MIDI event, the whole page
+                     * disappears. As a workaround, we wrap it into a separate timeout event which seems to be run
+                     * in a different context.
+                     */
+                    window.setTimeout(() => window.IMAGINARY.AppLauncher.closeApp(), 0);
                 } catch (err) {
                     console.log("Playback ended, but no action will be taken since we are not running inside AppLauncher.");
                 }
