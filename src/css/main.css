@@ -10,6 +10,7 @@ DeepPink #ff1493 rgb(255, 20, 147) hsl(328, 100%, 54%)
 
 body {
     overflow: hidden;
+    background-color: white;
 }
 
 .parameters * {
