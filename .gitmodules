@@ -1,0 +1,3 @@
+[submodule "menu/applauncher2"]
+	path = menu/applauncher2
+	url = https://github.com/IMAGINARY/applauncher2.git
