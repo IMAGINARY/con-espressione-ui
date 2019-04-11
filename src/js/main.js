@@ -110,7 +110,7 @@
             boxHeight: 300,
             boxDepth: 200,
             boxVerticalOffset: 250,
-            clamp: true,
+            clamp: false,
             get min() {
                 return new THREE.Vector3(-this.boxWidth / 2.0, this.boxVerticalOffset - this.boxHeight / 2.0, -this.boxDepth / 2.0);
             },
