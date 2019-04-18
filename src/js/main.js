@@ -106,10 +106,10 @@
                 return this._tipPosition;
             },
             lastFrameTime: 0,
-            boxWidth: 300,
-            boxHeight: 300,
-            boxDepth: 200,
-            boxVerticalOffset: 250,
+            boxWidth: 400,
+            boxHeight: 260,
+            boxDepth: 50,
+            boxVerticalOffset: 245,
             clamp: false,
             get min() {
                 return new THREE.Vector3(-this.boxWidth / 2.0, this.boxVerticalOffset - this.boxHeight / 2.0, -this.boxDepth / 2.0);
@@ -324,7 +324,7 @@
         window.controls.target = new THREE.Vector3(0, 350, 0);
         scene.add(camera);
         hands = new THREE.Group();
-        hands.position.set(0.0, 130.0, 0.0);
+        hands.position.set(0.0, 130.0, 100.0);
         scene.add(hands);
 
         interactionBox = new THREE.LineSegments(createBoxLineSegmentsGeometry(), new THREE.LineBasicMaterial({color: 0x999999}));
