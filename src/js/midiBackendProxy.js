@@ -76,7 +76,6 @@ class MidiBackendProxy {
     playComposition() {
         this._playing = true;
         this._sendControlChange(24, 127);
-        this._resendControls();
     }
 
     stopComposition() {

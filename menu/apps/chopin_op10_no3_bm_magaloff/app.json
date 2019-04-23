@@ -1,0 +1,15 @@
+{
+  "id": "chopin_op10_no3_bm_magaloff",
+  "version": "",
+  "type": "remote",
+  "main": "conEspressione",
+  "conEspressioneSong": 1,
+  "name": {
+    "en": "Frédéric Chopin:<br>Étude&nbsp;Op.&nbsp;10,&nbsp;No.&nbsp;3",
+    "de": "Frédéric Chopin:<br>Etüde&nbsp;Op.&nbsp;10,&nbsp;Nr.&nbsp;3"
+  },
+  "description": {
+    "en": "",
+    "de": ""
+  }
+}

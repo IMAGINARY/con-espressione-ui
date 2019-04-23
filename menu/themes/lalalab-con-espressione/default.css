@@ -1,0 +1,176 @@
+/** La La Lab OEIS theme **/
+
+/* quicksand-regular - latin */
+@font-face {
+    font-family: 'Quicksand';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../../../lib/quicksand/quicksand-v9-latin-regular.eot'); /* IE9 Compat Modes */
+    src: local('Quicksand Regular'), local('Quicksand-Regular'),
+    url('../../../lib/quicksand/quicksand-v9-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../../../lib/quicksand/quicksand-v9-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+    url('../../../lib/quicksand/quicksand-v9-latin-regular.woff') format('woff'), /* Modern Browsers */
+    url('../../../lib/quicksand/quicksand-v9-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../../../lib/quicksand/quicksand-v9-latin-regular.svg#Quicksand') format('svg'); /* Legacy iOS */
+}
+/* quicksand-700 - latin */
+@font-face {
+    font-family: 'Quicksand';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../../../lib/quicksand/quicksand-v9-latin-700.eot'); /* IE9 Compat Modes */
+    src: local('Quicksand Bold'), local('Quicksand-Bold'),
+    url('../../../lib/quicksand/quicksand-v9-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../../../lib/quicksand/quicksand-v9-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+    url('../../../lib/quicksand/quicksand-v9-latin-700.woff') format('woff'), /* Modern Browsers */
+    url('../../../lib/quicksand/quicksand-v9-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../../../lib/quicksand/quicksand-v9-latin-700.svg#Quicksand') format('svg'); /* Legacy iOS */
+}
+
+body {
+    background-color: white;
+    font-family: Quicksand, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    color: black;
+}
+
+body.mode-app {
+    background-color: white;
+}
+
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.appPane {
+    background-color: white;
+}
+
+.logo {
+    top: 7.5vh;
+    pointer-events: none;
+}
+
+.logo .logo-text {
+    font-family: Quicksand, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: black;
+}
+
+ul.menu-lang li a {
+    font-size: 5vh;
+}
+
+.info-text {
+    font-weight: bold;
+    text-transform: none;
+    font-size: 2.5vh;
+    line-height: 1.2;
+    bottom: -15vh;
+    background-color: #ffffffad;
+    z-index: 1000;
+    transition: bottom 1s 1s;
+}
+
+body.app-init .info-text,
+body.app-running .info-text {
+    bottom: 2vh;
+}
+
+.util-button {
+    color: black;
+    font-size: 7vh;
+    line-height: 7vh;
+}
+
+.titlePane {
+    display: none;
+}
+
+.overlay .overlay-background {
+    background-color: white;
+}
+
+ul.menu-lang li a {
+    color: black;
+    font-family: Quicksand, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+}
+
+.menu-main {
+    bottom: 25vh;
+}
+
+.menu-main-button {
+    vertical-align: top;
+}
+
+.menu-main-button .name {
+    color: black;
+    height: auto;
+    font-size: 2vmin;
+    line-height: 2.4vmin;
+    margin-top: -5.6vh;
+    overflow: visible;
+    background-color: white;
+    padding: 10px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.menu-main-button:before {
+    display: block;
+    content: " ";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    width: 0;
+    height: 1500px;
+    top: -500px;
+    bottom: 0;
+    left: 50%;
+    opacity: 0;
+    background-image: linear-gradient(135deg, rgba(0,0,0,0.17) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.17) 50%, rgba(0,0,0,0.17) 75%, transparent 75%, transparent 100%);
+    background-size: 28.28px 28.28px;
+    animation: MOVE-BG 0.75s infinite linear;
+    transition: width 0s 0.5s, left 0s 0.5s, opacity 0.5s;
+    overflow: hidden;
+}
+
+.appLauncher-1-rows .menu-main .menu-main-row.menu-main-row-3 {
+    width: 88%;
+    margin: 0 auto;
+    height: 55vh;
+    margin-top: -2vh;
+}
+
+@-webkit-keyframes MOVE-BG {
+    from {
+        -webkit-transform: translateY(0);
+    }
+    to {
+        -webkit-transform: translateY(-28.28px);
+    }
+}
+
+@keyframes MOVE-BG {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-28.28px);
+    }
+}
+
+.menu-main-button.initializing:before,
+.menu-main-button.running:before {
+    width: 100%;
+    left: 0;
+    opacity: 1;
+    transition: width 0.5s, left 0.5s, opacity 0.5s;
+}
+
+.menu-main-button.initializing .name,
+.menu-main-button.running .name {
+    font-weight: bold;
+}

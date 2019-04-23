@@ -1,0 +1,10 @@
+{
+  "id":  "con-espressione-launcher",
+  "version": "v1.0",
+  "scripts": [
+    "../../../lib/webmidi.js/2.3.2/webmidi.js",
+    "../../../src/js/configParser.js",
+    "../../../src/js/midiBackendProxy.js",
+    "js/con-espressione-launcher.js"
+  ]
+}

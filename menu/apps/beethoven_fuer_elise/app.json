@@ -1,0 +1,15 @@
+{
+  "id": "beethoven_fuer_elise",
+  "version": "",
+  "type": "remote",
+  "main": "conEspressione",
+  "conEspressioneSong": 3,
+  "name": {
+    "en": "Ludwig van Beethoven:<br>Bagatelle No. 25, \"Für Elise\"",
+    "de": "Ludwig van Beethoven:<br>Bagatelle Nr. 25, \"Für Elise\""
+  },
+  "description": {
+    "en": "",
+    "de": ""
+  }
+}

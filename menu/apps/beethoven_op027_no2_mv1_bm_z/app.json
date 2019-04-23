@@ -1,0 +1,15 @@
+{
+  "id": "beethoven_op027_no2_mv1_bm_z",
+  "version": "",
+  "type": "remote",
+  "main": "conEspressione",
+  "conEspressioneSong": 0,
+  "name": {
+    "en": "Ludwig van Beethoven: Piano&nbsp;Sonata&nbsp;No.&nbsp;14,&nbsp;Op.&nbsp;27,&nbsp;No.&nbsp;2 (Moonlight Sonata)",
+    "de": "Ludwig van Beethoven: Klaviersonate&nbsp;Nr.&nbsp;14,&nbsp;Op.&nbsp;27<br>Nr.&nbsp;2 (Mondscheinsonate)"
+  },
+  "description": {
+    "en": "",
+    "de": ""
+  }
+}

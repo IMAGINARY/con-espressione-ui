@@ -475,7 +475,7 @@
 
         const compositions = {
             "0: beethoven_op027_no2_mv1_bm_z": 0,
-            "1: chopin_op10_No3_bm_magaloff": 1,
+            "1: chopin_op10_no3_bm_magaloff": 1,
             "2: mozart_k331_3_batik": 2,
             "3: beethoven_fuer_elise": 3,
         };
