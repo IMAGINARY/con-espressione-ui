@@ -10,6 +10,6 @@ echo "Updating the git submodule for applauncher2."
 git submodule update -v
 
 echo "Copying the applauncher2 configuration."
-cp con-espressione.config.yml applauncher2/cfg/con-espressione.config.yml
+cp config.yml applauncher2/cfg/config.yml
 
 echo "Done."
