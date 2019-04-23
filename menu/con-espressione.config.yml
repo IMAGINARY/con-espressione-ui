@@ -50,7 +50,7 @@ apps:
   - ../apps/beethoven_fuer_elise
   - ../apps/chopin_op10_no3_bm_magaloff
   - ../apps/beethoven_op027_no2_mv1_bm_z
-  - ../apps/mozart_k331_3_batik
+#  - ../apps/mozart_k331_3_batik
 
 #
 # App to load when the user clicks on the "info" button. Typically an
