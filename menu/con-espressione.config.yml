@@ -47,10 +47,10 @@ plugins:
 # on the app.json file format.
 #
 apps:
-  - ../apps/beethoven_fuer_elise
-  - ../apps/chopin_op10_no3_bm_magaloff
+  - ../apps/beethoven_fuer_elise_complete
+  - ../apps/chopin_op10_no3_v422
   - ../apps/beethoven_op027_no2_mv1_bm_z
-#  - ../apps/mozart_k331_3_batik
+  - ../apps/mozart_kv545_mv2
 
 #
 # App to load when the user clicks on the "info" button. Typically an

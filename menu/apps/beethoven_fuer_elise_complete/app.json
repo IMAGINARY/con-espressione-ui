@@ -1,0 +1,15 @@
+{
+  "id": "beethoven_fuer_elise",
+  "version": "",
+  "type": "remote",
+  "main": "conEspressione",
+  "conEspressioneSong": 3,
+  "name": {
+    "en": "Ludwig&nbsp;van&nbsp;Beethoven,<br/>Bagatelle in A&nbsp;minor WoO&nbsp;59 (&ldquo;Für&nbsp;Elise&rdquo;)",
+    "de": "Ludwig&nbsp;van&nbsp;Beethoven:<br/>Bagatelle in a&#8209Moll WoO&nbsp;59 (&bdquo;Für&nbsp;Elise&ldquo;)"
+  },
+  "description": {
+    "en": "",
+    "de": ""
+  }
+}
