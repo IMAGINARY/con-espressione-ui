@@ -5,9 +5,11 @@ IMAGINARY.AppLauncher.registerRemoteLauncher('conEspressione', (function () {
   let _appLauncher = null;
   let _midiBackend = null;
   let _closeHandler = null;
+  let _timeout = 0;
+  let _ignoreEndOfComposition = false;
 
   function onPlaybackEvent(type) {
-    if (type === "endOfComposition") {
+    if (type === "endOfComposition" && !_ignoreEndOfComposition) {
       try {
         /***
          * If we are calling closeApp() directly from the context of the MIDI event, the whole page
@@ -24,16 +26,20 @@ IMAGINARY.AppLauncher.registerRemoteLauncher('conEspressione', (function () {
   }
 
   function playComposition(which) {
-    _midiBackend.removePlaybackListener(onPlaybackEvent);
+    // ignore the end-of-composition signal when switching songs (see below)
+    _ignoreEndOfComposition = true;
+    window.clearTimeout(_timeout);
+
     _midiBackend.selectComposition(which);
     _midiBackend.playComposition();
+
     /***
      * The following delay is kind of a hack, because we need to wait for the backend to send the
      * endOfComposition event for the previous song (which might also never happen if there wasn't any song
      * playing at the moment). So for the unlikely case that a song if shorter than 2s, the hack might just
      * fail and the endOfComposition callback will never be triggered for the selected composition.
      */
-    window.setTimeout(() => _midiBackend.addPlaybackListener(onPlaybackEvent), 2000);
+    _timeout = window.setTimeout(() => _ignoreEndOfComposition = false, 2000);
   }
 
   function stopComposition() {
@@ -60,6 +66,7 @@ IMAGINARY.AppLauncher.registerRemoteLauncher('conEspressione', (function () {
           midiInputName: config.backendMidiInput,
           midiOutputName: config.backendMidiOutput
         });
+        _midiBackend.addPlaybackListener(onPlaybackEvent);
         window.midiBackend = _midiBackend;
       }
     });
