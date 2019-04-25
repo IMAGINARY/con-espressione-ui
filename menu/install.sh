@@ -7,7 +7,7 @@ SCRIPTNAME=$(basename "$0")
 cd "$(dirname "$0")"
 
 echo "Updating the git submodule for applauncher2."
-git submodule update -v
+git submodule update --init --recursive
 
 echo "Copying the applauncher2 configuration."
 cp con-espressione.config.yml applauncher2/cfg/con-espressione.config.yml
