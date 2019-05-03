@@ -651,6 +651,27 @@
         .use('riggedHand', riggedHandScope)
         .on('frameEnd', render)
         .connect();
+
+    // The leap.js connection handling is broken and often leads to unrecoverable state, so we handle lost connections
+    // manually. Essentially, we periodically check the connections status and try to reconnect or properly disconnect
+    // first if we detect problematic state.
+    // FIXME: The checks depend on private APIs and might break at any time.
+    controller.on('disconnect', () => controller.disconnect());
+    setInterval(() => {
+        if (!controller.connected()) {
+            console.log("Trying to connect to Leap Motion service", controller.connection.socket ? controller.connection.socket.readyState : undefined);
+            if (controller.connection.socket !== undefined) {
+                if (controller.connection.socket.readyState === WebSocket.CLOSED) {
+                    console.log("Properly disconnecting first", controller.connection.socket);
+                    controller.disconnect();
+                }
+            } else {
+                console.log("Re-connecting", controller.connection.socket);
+                controller.connect();
+            }
+        }
+    }, 1000);
+
 }).call(this);
 
 /*
