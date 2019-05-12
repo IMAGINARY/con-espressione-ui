@@ -165,7 +165,12 @@
         },
         playback: {
             enabled: config.enableSynth,
-        }
+        },
+        handFade: {
+            enabled: true,
+            fadeOutTimeout: 10 * 1000,
+            fadeOutDuration: 1000,
+        },
     }
 
     function createParameterModel(id, initialValue, userData) {
@@ -398,6 +403,8 @@
 
         updateParticles();
         particleScope.system.visible = app_state.objects.particles;
+
+        fadeOutHands.animator.update();
     }
 
     function render() {
@@ -525,6 +532,11 @@
         idleFolder.add(app_state.idleOptions, "timeout", 0, 500 * 1000).name("Start after (ms");
         idleFolder.add(app_state.idleOptions, "interpolationDuration", 0, 500 * 1000).name("Interpolate for (ms)");
 
+        const fadeFolder = datgui.addFolder('Fade out hands');
+        fadeFolder.add(app_state.handFade, "enabled").name("Enabled");
+        fadeFolder.add(app_state.handFade, "fadeOutTimeout", 0, 60 * 1000).name("Fade out after (ms)");
+        fadeFolder.add(app_state.handFade, "fadeOutDuration", 0, 60 * 1000).name("Fade out for (ms)");
+
         const miscFolder = datgui.addFolder('Miscellaneous');
         miscFolder.add(app_state.controls, "camera").name("Camera control");
         miscFolder.add(app_state.controls, "hideDebugTools").name("Hide debug tools");
@@ -614,14 +626,15 @@
         renderFn: null /* dummy value, otherwise init fails */,
         materialOptions: {
             wireframe: false,
-            transparent: false,
-            opacity: 0.1,
+            defaultOpacity: 0.1,
+            opacity: this.defaultOpacity,
             transparent: true,
             color: new THREE.Color('#FFFFFF'),
             userData: {
                 outlineParameters: {
                     visible: true,
-                    alpha: 0.5,
+                    defaultAlpha: 0.5,
+                    alpha: this.defaultAlpha,
                     thickness: 0.015,
                     color: [0, 0, 0],
                 }
@@ -643,6 +656,33 @@
         checkWebGL: true
     };
 
+    window.fadeOutHands = (function () {
+        const animate = (currentValue) => {
+            const materialOptions = riggedHandScope.materialOptions;
+            const outlineParameters = materialOptions.userData.outlineParameters;
+            outlineParameters.alpha = materialOptions.userData.outlineParameters.defaultAlpha * currentValue;
+
+            hands.traverse(function (node) {
+                if (node.material) {
+                    node.material.opacity = materialOptions.defaultOpacity * currentValue;
+                    node.material.transparent = true;
+                }
+            });
+        };
+        const animator = createAnimator(1.0, animate);
+        const handFound = () => {
+            animator.begin.timestamp = performance.now() + app_state.handFade.fadeOutTimeout;
+            animator.begin.value = 1.0;
+            animator.end.timestamp = animator.begin.timestamp + app_state.handFade.fadeOutDuration;
+            animator.end.value = app_state.handFade.enabled ? 0.0 : 1.0;
+        };
+
+        return {
+            animator: animator,
+            handFound: handFound,
+        }
+    })();
+
     controller
         .use('handHold')
         .use('transform', {})
@@ -650,6 +690,7 @@
         .use('screenPosition')
         .use('riggedHand', riggedHandScope)
         .on('frameEnd', render)
+        .on('handFound', fadeOutHands.handFound)
         .connect();
 
     // The leap.js connection handling is broken and often leads to unrecoverable state, so we handle lost connections
