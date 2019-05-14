@@ -468,12 +468,14 @@
         outputParameters.loudness.addValueListener(l => midiBackend.loudness = l);
         outputParameters.impact.addValueListener(l => midiBackend.impact = l);
 
-        // stop playing and play the default composition from the beginning
-        setTimeout(() => {
-            midiBackend.stopComposition();
-            midiBackend.selectComposition(config.composition);
-            midiBackend.playComposition();
-        }, 0);
+        if (config.autoPlay) {
+            // stop playing and play the default composition from the beginning
+            setTimeout(() => {
+                midiBackend.stopComposition();
+                midiBackend.selectComposition(config.composition);
+                midiBackend.playComposition();
+            }, 0);
+        }
     };
 
     function initDatGui() {
