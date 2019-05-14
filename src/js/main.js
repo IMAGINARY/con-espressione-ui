@@ -721,6 +721,9 @@
 
 }).call(this);
 
+if (config.reloadOnError)
+    window.addEventListener('error', event => window.location.reload());
+
 /*
 // on screen positioning might be useful later:
 window.sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshBasicMaterial(0x0000ff));
