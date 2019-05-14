@@ -276,6 +276,7 @@
 
     window.scene = null;
     window.hands = null;
+    window.riggedHands = null;
     window.interactionBox = null;
     window.renderer = null;
     window.effect = null;
@@ -330,6 +331,8 @@
         scene.add(camera);
         hands = new THREE.Group();
         hands.position.set(0.0, 130.0, 100.0);
+        riggedHands = new THREE.Group();
+        hands.add(riggedHands);
         scene.add(hands);
 
         interactionBox = new THREE.LineSegments(createBoxLineSegmentsGeometry(), new THREE.LineBasicMaterial({color: 0x999999}));
@@ -617,7 +620,7 @@
     controller.on('frame', updatePosition);
 
     window.riggedHandScope = {
-        parent: hands,
+        parent: riggedHands,
         renderer: renderer,
         scale: 1.0,
         positionScale: 1.0,
@@ -662,11 +665,12 @@
             const outlineParameters = materialOptions.userData.outlineParameters;
             outlineParameters.alpha = materialOptions.userData.outlineParameters.defaultAlpha * currentValue;
 
-            hands.traverse(function (node) {
+            riggedHands.traverse(function (node) {
                 if (node.material) {
                     node.material.opacity = materialOptions.defaultOpacity * currentValue;
                     node.material.transparent = true;
                 }
+                node.visible = currentValue == 0.0 ? false : true;
             });
         };
         const animator = createAnimator(1.0, animate);
