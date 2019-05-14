@@ -67,6 +67,9 @@ IMAGINARY.AppLauncher.registerRemoteLauncher('conEspressione', (function () {
           midiOutputName: config.backendMidiOutput
         });
         _midiBackend.addPlaybackListener(onPlaybackEvent);
+        _midiBackend.stopComposition();
+        _midiBackend.selectComposition(0);
+        _midiBackend.playComposition();
         window.midiBackend = _midiBackend;
       }
     });
