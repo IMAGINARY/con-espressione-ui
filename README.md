@@ -4,7 +4,7 @@ This repository contains a frontend for [*Con Espressione!*](https://github.com/
 a software for mimicking real piano performances based on a data-driven performance model.
 
 Global volume and tempo are controlled via hand movement over a [LEAP motion sensor](https://www.leapmotion.com).
-The impact of the machine learning algorithm is controlled via a dedicated [MIDI device](teensy/README.md).
+The impact of the machine learning algorithm is controlled via a dedicated [MIDI device](midi-input-device).
 
 ![Screenshot of the main Con Espressione! frontend](https://user-images.githubusercontent.com/2445084/58544246-2a6ee680-8201-11e9-988b-78bf8b85dc3c.jpg)
 
