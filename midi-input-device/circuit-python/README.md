@@ -14,3 +14,7 @@ The default configuration works with the [Raspberry Pi Pico](https://www.raspber
 You may need to adjust this with respect to your board and configuration.
 
 Note: Version 7.x of CircuitPython does not support custom naming of USB devices (it seems a planned feature for v8.x: adafruit/circuitpython#6247). To connect the USB MIDI slider with other applications, you may need to look up the device name from your system information. 
+
+## Debugging
+
+The device outputs diagnostic messages to the serial console offered by your board.
