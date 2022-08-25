@@ -31,4 +31,4 @@ resend_interval = 1
 # The analog input will be read in a loop. This factor interpolates between the
 # values accumulated so far and the newly read value. A factor of 1 will ignore
 # the previous values, but this may be very noisy.
-smoothing = 0.1
+smoothing = 0.05
