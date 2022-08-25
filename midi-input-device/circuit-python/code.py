@@ -56,10 +56,13 @@ while True:
     v = v * (1.0 - smoothing) + r * smoothing
 
     can_send = now - last_send_time > min_send_interval
-    has_changed = abs(v - last_sent_v) >= half_step
+    has_fallen = (v < half_step < last_sent_v) or (last_sent_v - v >= half_step)
+    has_risen = (v - last_sent_v >= half_step) or (last_sent_v < 1 - half_step < v)
+    has_changed = has_risen or has_fallen
     should_resend = now - last_send_time > resend_interval
+
     if should_resend or (can_send and has_changed):
-        cc = round(v * 127)
+        cc = min(max(0, round(v * 128 - 0.5)), 127)
         print("{:3d} {:0.5f} {:5d}".format(cc, r, a))
         if led is not None:
             led.value = True
