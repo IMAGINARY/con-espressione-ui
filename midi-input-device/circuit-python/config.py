@@ -32,3 +32,10 @@ resend_interval = 1
 # values accumulated so far and the newly read value. A factor of 1 will ignore
 # the previous values, but this may be very noisy.
 smoothing = 0.05
+
+# Spread the values of the analog input over a smaller or larger interval.
+# Useful if the input device does not cover the full range of possible values.
+# Formula:
+#   out = (in - spread_center) * spread_factor + spread_center
+spread_factor = 1
+spread_center = 0.5

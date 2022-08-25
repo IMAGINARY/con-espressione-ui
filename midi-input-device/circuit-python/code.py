@@ -40,6 +40,8 @@ control = config.midi_control
 resend_interval = config.resend_interval
 min_send_interval = config.min_send_interval
 smoothing = config.smoothing
+spread_factor = config.spread_factor
+spread_center = config.spread_center
 
 half_step = (1 / 128) / 2
 last_sent_v = -1
@@ -48,14 +50,19 @@ led_duration = min_send_interval / 10
 
 print()
 
+def clamp(value, min_value, max_value):
+    return min(max(min_value, value), max_value)
+
 a = analog_in.value
 r = a / 65535
-v = r
+s = clamp((r - spread_center) * spread_factor + spread_center, 0, 1)
+v = s
 while True:
     now = time.monotonic()
     a = analog_in.value
     r = a / 65535
-    v = v * (1.0 - smoothing) + r * smoothing
+    s = clamp((r - spread_center) * spread_factor + spread_center, 0, 1)
+    v = v * (1.0 - smoothing) + s * smoothing
 
     can_send = now - last_send_time > min_send_interval
     has_fallen = (v < half_step < last_sent_v) or (last_sent_v - v >= half_step)
@@ -64,8 +71,8 @@ while True:
     should_resend = now - last_send_time > resend_interval
 
     if should_resend or (can_send and has_changed):
-        cc = min(max(0, round(v * 128 - 0.5)), 127)
-        print("{:3d} {:0.5f} {:5d}".format(cc, r, a))
+        cc = clamp(round(v * 128 - 0.5), 0, 127)
+        print("{:3d} {:0.5f} {:0.5f} {:5d}".format(cc, s, r, a))
         if led is not None:
             led.value = True
         midi.send(ControlChange(control, cc))
