@@ -50,8 +50,10 @@ led_duration = min_send_interval / 10
 
 print()
 
+
 def clamp(value, min_value, max_value):
     return min(max(min_value, value), max_value)
+
 
 a = analog_in.value
 r = a / 65535
