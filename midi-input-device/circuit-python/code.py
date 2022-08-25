@@ -42,13 +42,15 @@ min_send_interval = config.min_send_interval
 smoothing = config.smoothing
 
 half_step = (1 / 128) / 2
-v = 0
 last_sent_v = -1
 last_send_time = 0
 led_duration = min_send_interval / 10
 
 print()
 
+a = analog_in.value
+r = a / 65535
+v = r
 while True:
     now = time.monotonic()
     a = analog_in.value
