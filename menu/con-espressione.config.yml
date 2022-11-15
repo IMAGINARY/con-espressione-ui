@@ -12,6 +12,7 @@ lang: de
 title:
   en: Con Espressione!
   de: Mit Ausdruck!
+  fr: Con Espressione!
 
 #
 # Logo image to show on top of the menu.
@@ -99,6 +100,7 @@ langMenuShow: true
 langMenuItems:
   - en
   - de
+  - fr
 
 #
 # Text that will be shown in the menu beneath the app icons.
@@ -109,3 +111,9 @@ langMenuItems:
 infoText:
   en: <p>Move your hand over the sensor and play with<br>volume and speed of the musical piece.</p><p>Move the slider to get support from our Artificial Intelligence musician.</p>
   de: <p>Bewege deine Hand über den Sensor vor dir und experimentiere<br>mit Lautstärke und Tempo des Klavierstücks.</p><p>Aktiviere die künstliche Intelligenz, indem du den Schieberegler bewegst.</p>
+  fr: <p>Bougez la main au-dessus du capteur pour modifier<br>le volume et le tempo de la pièce de musique.</p><p>Déplacez le curseur pour que notre musicien doté d'intelligence artificielle interprète vos mouvements.</p>
+  
+  
+  
+  
+  
