@@ -6,10 +6,12 @@
   "conEspressioneSong": 1,
   "name": {
     "en": "Frédéric&nbsp;Chopin,<br/>Etude&nbsp;Op.10&nbsp;No.3 in E&nbsp;major (beginning)",
-    "de": "Frédéric&nbsp;Chopin,<br/>Etude&nbsp;Op.10&nbsp;No.3 in&nbsp;E&#8209Dur (Anfang)"
+    "de": "Frédéric&nbsp;Chopin,<br/>Etude&nbsp;Op.10&nbsp;No.3 in&nbsp;E&#8209Dur (Anfang)",
+    "fr": "Frédéric&nbsp;Chopin,<br/>Étude&nbsp;Op.10&nbsp;No.3 en mi&nbsp;majeur (début)"
   },
   "description": {
     "en": "",
-    "de": ""
+    "de": "",
+    "fr: ""
   }
 }
