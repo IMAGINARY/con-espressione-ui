@@ -1,4 +1,17 @@
 (function () {
+    const themeConstants = config.darkMode ? {
+        bodyClassList:['dark-theme'],
+        sceneClearColor: 0x000000,
+        riggedHandColor: '#000000',
+        riggedHandOutlineColor: [1, 1, 1],
+    } : {
+        bodyClassList:[],
+        sceneClearColor: 0xFFFFFF,
+        riggedHandColor: '#FFFFFF',
+        riggedHandOutlineColor: [0, 0, 0],
+    }
+    document.body.classList.add(...themeConstants.bodyClassList);
+
     const labels = {
         'tempo': 'Tempo',
         'loudness': 'Loudness',
@@ -312,7 +325,7 @@
         window.renderer = new THREE.WebGLRenderer({
             alpha: true
         });
-        renderer.setClearColor(0xFFFFFF, 1);
+        renderer.setClearColor(themeConstants.sceneClearColor, 1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         element.appendChild(renderer.domElement);
         axis = new THREE.AxesHelper(40);
@@ -634,14 +647,14 @@
             defaultOpacity: 0.1,
             opacity: this.defaultOpacity,
             transparent: true,
-            color: new THREE.Color('#FFFFFF'),
+            color: new THREE.Color(themeConstants.riggedHandColor),
             userData: {
                 outlineParameters: {
                     visible: true,
                     defaultAlpha: 0.5,
                     alpha: this.defaultAlpha,
                     thickness: 0.015,
-                    color: [0, 0, 0],
+                    color: themeConstants.riggedHandOutlineColor,
                 }
             },
         },

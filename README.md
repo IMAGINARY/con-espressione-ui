@@ -98,6 +98,7 @@ Configure a web server to statically serve the files in this repository.
 Point a Chrome or Chromium based web browser to `http(s)://server:port/src/index.html` for loading the main frontend.
 
 The UI comes with a couple of configuration options that can be provided via URL parameters (`index.html?parameter1=value1&parameter2=value2`):
+* `darkMode`: Whether the UI should use a dark theme. (default: `false`)
 * `backendMidiInput`: MIDI input device name of the backend. (default: `con-espressione`)
 * `backendMidiOutput`: MIDI output device name of the backend.  (default: `con-espressione`)
 * `mlImpactMidiInput`: Name of the MIDI device to control the machine learning parameter. (default: `SOLO Control`)

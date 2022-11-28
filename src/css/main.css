@@ -36,20 +36,36 @@ DeepPink #ff1493 rgb(255, 20, 147) hsl(328, 100%, 54%)
 }
 
 body {
-    overflow: hidden;
-    background-color: white;
-}
-
-.parameters * {
+    --background-color: white;
     --parameter-bar-height: 24px;
     --parameter-bar-border-width: 0px;
-    --parameter-border-color-default: #777777;
     --parameter-text-color: hsl(0, 0%, 50%);
     --parameter-border-color: hsl(0, 0%, 50%);
+    --parameter-marker-color: hsl(0, 0%, 50%);
+
+    /* bright mode */
+    --parameter-border-color-default: #777777;
+    --parameter-background-color: hsl(0, 0%, 100%);
+    --parameter-bar-container-background-color: hsl(0, 0%, 92%);
     --parameter-color: hsl(0, 0%, 60%);
     --parameter-second-color: hsl(0, 0%, 65%);
     --parameter-third-color: hsl(0, 0%, 75%);
-    --parameter-marker-color: hsl(0, 0%, 50%);
+}
+
+body.dark-theme {
+    --background-color: white;
+    --parameter-border-color-default: #888888;
+    --parameter-background-color: hsl(0, 0%, 0%);
+    --parameter-bar-container-background-color: hsl(0, 0%, 8%);
+    --parameter-color: hsl(0, 0%, 40%);
+    --parameter-second-color: hsl(0, 0%, 35%);
+    --parameter-third-color: hsl(0, 0%, 25%);
+}
+
+
+body {
+    overflow: hidden;
+    background-color: var(--background-color);
 }
 
 .parameters {
@@ -60,7 +76,7 @@ body {
     left: 0px;
     display: grid;
     grid-template-columns: min-content auto min-content;
-    background-color: hsl(0, 0%, 100%);
+    background-color: var(--parameter-background-color);
 }
 
 .parameters .label {
@@ -87,7 +103,7 @@ body {
 
 .parameters .barContainer {
     padding: 2px 8px 2px 8px;
-    background-color: hsl(0, 0%, 92%);
+    background-color: var(--parameter-bar-container-background-color);
 }
 
 .parameters :nth-child(10), .parameters :nth-child(11), .parameters :nth-child(12) {
