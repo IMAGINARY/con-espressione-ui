@@ -54,8 +54,9 @@ sudo dpkg -i Leap_Motion_Installer_Packages_release_public_linux/Leap-2.3.1+3154
 rm -r Leap_Motion_Installer_Packages_release_public_linux/
 ```
 
-Based on https://forums.leapmotion.com/t/tip-ubuntu-systemd-and-leapd/2118, put
+Create the systemd unit file `/lib/systemd/system/leapd.service` containing
 ```
+# Based on https://forums.leapmotion.com/t/tip-ubuntu-systemd-and-leapd/2118
 [Unit]
 Description=LeapMotion Daemon
 After=syslog.target
@@ -70,13 +71,14 @@ RestartSec=10ms
 [Install]
 WantedBy=multi-user.target
 ```
-into `/lib/systemd/system/leapd.service` and execute
+for automatically starting up the Leap Motion daemon.
+
+Make the systemd daemon aware of the new service, enable and launch it:
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable leapd.service
 sudo systemctl start leapd.service
 ```
-
 
 ### Configuration and Running
 
@@ -91,7 +93,17 @@ and keep it running (in the background).
 
 #### Frontend
 
-Configure a web server to statically serve the files in this repository. 
+Configure a web server to statically serve the files in this repository.
+
+Python:
+```shell
+python3 -m http.server -d /path/to/frontend [port]
+```
+
+Node.js:
+```shell
+npx reload -d /path/to/frontend -p 8081
+```
 
 ##### Main frontend
 
@@ -118,10 +130,41 @@ The frontend has a built-in synthesizer based on [MIDI.js](https://github.com/mu
 It is good enough for testing, but the software only unlocks its full potential when
 combined with a dedicated piano synthesizer.
 
-We recommend using the cross-platform [Pianoteq synthesizer](https://www.pianoteq.com/).
+The following two software synthesizers have been confirmed to work quite well:
+- Free software: [Fluidsynth](https://www.fluidsynth.org) combined with the [Salamander soundfont](https://rytmenpinne.wordpress.com/sounds-and-such/salamander-grandpiano/).
+- Commercial software: [Modartt Pianoteq](https://www.modartt.com/pianoteq) combined with the [Steinway Model D grand piano](https://www.modartt.com/modeld) virtual instrument.
 
-#### Pianoteq post-installation instructions for Linux
-After installing and registering the Pianoteq synthesizer on Linux,
+It should also be possible to connect external hardware synthesizers even through this has not been tested.
+
+When using an external synthesizer, the built-in synthesizer must be disabled by passing the URL parameter `enableSynth=false`.
+
+#### Fluidsynth
+
+Follow the [Fluidsynth installation instructions](https://github.com/FluidSynth/fluidsynth/wiki/Download) for your platform.
+
+Download an `.sf2` or `.sf3` piano soundfont of your choice. The [Salamander soundfont](https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html) is recommended. 
+
+After starting the [*Con Espressione!* backend](#Backend-1), launch Fluidsynth in server mode (`-s`), without opening an interactive shell (`-i`), with unmodified audio gain (`-g 1`), automatically connect to all available MIDI outputs (`-o midi.autoconnect=True`) and use the given soundfont:
+```shell
+fluidsynth -s -i -g 1 -o midi.autoconnect=True /path/to/the/soundfont
+```
+
+Depending on your platform, it may be necessary to add the `-m` to switch to another MIDI driver. Use one of the options provided by
+```shell
+fluidsynth -m help
+```
+
+#### Pianoteq
+
+Obtain a [Pianoteq license](https://www.modartt.com/buy) (the *Stage* version should suffice),
+selecting an instrument pack of your choice during checkout. The [Steinway Model D grand piano](https://www.modartt.com/modeld) is recommended.
+
+Then, download and install the software for your platform.
+
+With the [*Con Espressione!* backend](#Backend-1) already running, connect the Pianoteq synthesizer to the MIDI output named `con-espressione`.
+
+#### Synthesizer post-installation instructions for Linux
+After installing and configuring a synthesizer on Linux,
 you should equip your user with realtime permissions to avoid crackling audio.
 
 Add a `realtime` group and your user to this group:
@@ -137,12 +180,3 @@ Put into /etc/security/limits.d/99-realtime.conf:
 @realtime - nice -10
 @realtime - memlock unlimited
 ```
-
-#### Pianoteq configuration
-
-After starting the [*Con Espressione!* backend](#Backend-1),
-connect to the `con-espressione` virtual MIDI device.
-
-The recommended instrument is [Steinway Model D grand piano](https://www.pianoteq.com/modeld).
-
-Now, the UI should be launched using the `enableSynth=false` URL parameter to disable the internal synthesizer.
