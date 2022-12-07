@@ -1,4 +1,4 @@
-# Frontend for Con Espressione!
+# Con Espressione! (frontend components)
 
 This repository contains a frontend for [*Con Espressione!*](https://github.com/IMAGINARY/con-espressione),
 a software for mimicking real piano performances based on a data-driven performance model.
@@ -13,6 +13,84 @@ For selecting a composition to control the performance of, a dedicated [applaunc
 
 The main and menu frontends communicate with the [python backend via MIDI messages](https://github.com/IMAGINARY/con-espressione#midi-interface).
 This provides a unified interface for song selection, playback control, parameter adjustments and note playback.
+
+## Background
+
+A piece of music can be described with mathematical accuracy on a score, with
+symbols perfectly defined in a well-founded theory. However, music is above all
+an art, and as such it conveys emotions, feelings, and human sensations. How is
+it possible to express these feelings, given such a strict notation? How can a
+performer make a piece come alive? What lies beneath the score sheet and the
+execution of a piece?
+
+A human performer does not play all the notes of a chord at the same time, nor
+do they keep a strict tempo; some notes start a few milliseconds earlier, or are
+released a few milliseconds later, some are played louder than others, some
+appear quicker, etc. All these nuances allow a performing musician to express
+themselves and imprint some feelings and emotions onto the performance. A
+musician is not a machine that perfectly reproduces the score, and these
+“imperfections” or deviations are what make the music alive, something that
+humans do naturally but a machine could never do... or could it?
+
+This exhibit allows you to explore the difference between a mechanical
+reproduction of a piece and a more “human” interpretation produced by an
+Artificial Intelligence that was trained to behave as a musician. The visitor
+takes the role of a music conductor, controlling overall tempo and loudness of a
+piano performance. Via a camera sensor, the hand of the visitor is tracked in
+space. The updown position determines the loudness (volume) of the music, and
+the left-right position determines the tempo (the speed) of the music.
+Initially, this is achieved by directly adapting the loudness and tempo of the
+overall piece according to the position of the hand, but even if the machine
+obeys you to set these values, the music feels automatic and soul-less. This is
+because with your hand movements, you can only control overall tempo and
+loudness, but not the fine details of a performance (such as how to play the
+individual notes, or how to stress the melody line).
+
+Then, a slider allows you to activate the Artificial Intelligence. The higher
+the value, the more freedom has the machine to choose small deviations from the
+prescribed parameters. The machine adjusts the tempo and loudness to be slightly
+different from what you conduct, to make the music more lively and less
+“mechanical”. It also introduces changes in the dynamic spread, micro-timing,
+and articulation.
+
+- The loudness is the volume, i.e. the amount of amplification of the sound of
+  each note. Raising the loudness is the most obvious way to stress a note.
+- Dynamic spread relates to loudness differences between simultaneously played
+  notes (e.g., in a chord). This is important to make the melody line come out
+  clearly and to change the overall “sound” of a chord.
+- Musical tempo is defined as the rate at which musical events or beats are
+  played. Music performers continually change the tempo, speeding up or slowing
+  down, to express the “ebb and flow” of the music. This is what makes music
+  sound natural to us (and we may not even be conscious of all these tempo
+  fluctuations).
+- Microtiming refers to the moment that a note plays with respect to its
+  supposed onset. For example, if a chord consists of several notes that are
+  supposed to be played together, one can advance one note over another by a few
+  milliseconds, so that not all of them are perfectly synchronized. This is
+  inevitable in real-life performance, and it makes the piece more warm, human
+  and expressive.
+- Articulation here refers to the duration of a note with respect to its
+  supposed duration according to the score. Notes can be played a bit longer or
+  shorter than the composer described in the score, tying them together or
+  separating them, which helps to stress or diffuse some notes amongst the
+  others. In musical language, this is described with terms as legato and
+  staccato.
+
+Each performer has their own experience, understanding of a piece, and
+expressive intentions, and communicating these in a performance requires control
+over musical parameters at many levels – from precise note-level details like
+articulation or micro-timing to high-level, long-term tempo and the shaping of
+its dynamics. The computer program behind this exhibit was trained with hundreds
+of real-life performances of music pieces to analyze and learn how these
+parameters are used and controlled in real-life interpretations by human
+pianists. Experimental results show that computers are already very good at
+learning the low-level, detailed decisions, but still have problems
+understanding the larger-scale form and dramatic structure of music, and the
+high-level shaping this requires. Thus, the exhibit explores and demonstrates a
+compromise: you control overall loudness and tempo with your hand, at a high
+level, based on your understanding of the music, and the computer adds its own
+local details and deviations. In this way, the resulting performance is the
+product of a true cooperation between a human (you) and a computer (AI).
 
 ## Installation instructions
 
